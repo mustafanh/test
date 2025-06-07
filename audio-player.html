@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent Audio Player</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: transparent;
+        }
+        
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <audio id="persistent-audio" controls>
+        <source src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    
+    <script>
+        // Get the persistent audio element
+        const persistentAudio = document.getElementById('persistent-audio');
+        
+        // Check if there's a saved track in localStorage
+        const savedTrack = localStorage.getItem('currentTrack');
+        const savedTime = localStorage.getItem('currentTime');
+        const wasPlaying = localStorage.getItem('isPlaying') === 'true';
+        
+        // Load saved volume
+        const savedVolume = localStorage.getItem('volume');
+        if (savedVolume) {
+            persistentAudio.volume = savedVolume / 100;
+        }
+        
+        // Pre-load the saved track
+        if (savedTrack) {
+            persistentAudio.src = savedTrack;
+            persistentAudio.currentTime = parseFloat(savedTime || 0);
+            
+            // Resume playback if it was playing
+            if (wasPlaying) {
+                setTimeout(() => {
+                    persistentAudio.play().catch(e => console.error("Error resuming playback:", e));
+                }, 100);
+            }
+        }
+        
+        // Save current time periodically
+        persistentAudio.addEventListener('timeupdate', () => {
+            localStorage.setItem('currentTime', persistentAudio.currentTime.toString());
+        });
+        
+        // Save playing state
+        persistentAudio.addEventListener('play', () => {
+            localStorage.setItem('isPlaying', 'true');
+            // Notify parent window about play state
+            window.parent.postMessage({ type: 'playStateChanged', isPlaying: true }, '*');
+        });
+        
+        persistentAudio.addEventListener('pause', () => {
+            localStorage.setItem('isPlaying', 'false');
+            // Notify parent window about play state
+            window.parent.postMessage({ type: 'playStateChanged', isPlaying: false }, '*');
+        });
+        
+        // Listen for messages from the parent window
+        window.addEventListener('message', function(event) {
+            // Accept messages from any origin for testing
+            const data = event.data;
+            console.log("Message received in iframe:", data);
+            
+            // Handle different message types
+            if (data.type === 'play') {
+                persistentAudio.play().catch(e => console.error("Error playing audio:", e));
+            } else if (data.type === 'pause') {
+                persistentAudio.pause();
+            } else if (data.type === 'setVolume') {
+                persistentAudio.volume = data.volume / 100;
+                localStorage.setItem('volume', data.volume);
+            } else if (data.type === 'loadTrack') {
+                persistentAudio.src = data.src;
+                persistentAudio.currentTime = 0;
+                localStorage.setItem('currentTrack', data.src);
+                localStorage.setItem('currentTime', '0');
+                
+                if (data.play) {
+                    setTimeout(() => {
+                        persistentAudio.play().catch(e => console.error("Error playing audio:", e));
+                    }, 100);
+                }
+            } else if (data.type === 'nextTrack') {
+                // Get the current track and find the next one
+                const currentTrack = localStorage.getItem('currentTrack');
+                const trackList = JSON.parse(localStorage.getItem('trackList') || '[]');
+                const currentIndex = trackList.indexOf(currentTrack);
+                const nextIndex = (currentIndex + 1) % trackList.length;
+                const nextTrack = trackList[nextIndex];
+                
+                if (nextTrack) {
+                    persistentAudio.src = nextTrack;
+                    persistentAudio.currentTime = 0;
+                    localStorage.setItem('currentTrack', nextTrack);
+                    localStorage.setItem('currentTime', '0');
+                    
+                    // Update track name
+                    const trackNames = JSON.parse(localStorage.getItem('trackNames') || '{}');
+                    const nextTrackName = trackNames[nextTrack] || 'Unknown Track';
+                    localStorage.setItem('currentTrackName', nextTrackName);
+                    
+                    // Notify parent about track change
+                    window.parent.postMessage({ 
+                        type: 'trackChanged', 
+                        track: nextTrack,
+                        trackName: nextTrackName
+                    }, '*');
+                    
+                    // Play the next track
+                    setTimeout(() => {
+                        persistentAudio.play().catch(e => console.error("Error playing next track:", e));
+                    }, 100);
+                }
+            }
+        });
+        
+        // Log when the iframe is loaded
+        console.log("Audio player iframe loaded");
+        
+        // Auto-play when the page loads if it was playing before
+        window.addEventListener('load', function() {
+            if (wasPlaying && savedTrack) {
+                setTimeout(() => {
+                    persistentAudio.play().catch(e => console.error("Error auto-playing on load:", e));
+                }, 200);
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Writing Tools - Living Paper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+            position: relative;
+            color: #fff;
+        }
+
+        header {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            background: linear-gradient(to right, #fff 20%, #666 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: left;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #888;
+            text-align: left;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2.5rem;
+        }
+
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 120px;
+            height: 120px;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-button i {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-button span {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, #1a1a1a 0%, #000 100%);
+            z-index: 0;
+        }
+
+        /* Spline Viewer Styles */
+        .spline-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 600px;
+            margin: 2rem auto 3rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: transparent;
+            border: none;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .spline-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Website Shortcuts Styles */
+        .shortcuts-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .shortcuts-title {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+            background: linear-gradient(to right, #fff 20%, #666 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .shortcut-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .shortcut-box:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .shortcut-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .shortcut-name {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .gmail-icon { color: #EA4335; }
+        .pinterest-icon { color: #E60023; }
+        .threads-icon { color: #000000; background: #fff; border-radius: 50%; width: 54px; height: 54px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        .spotify-icon { color: #1ED760; }
+        .youtube-icon { color: #FF0000; }
+        .chatgpt-icon { color: #10A37F; }
+        .claude-icon { color: #8E75B2; }
+
+        /* Add the musical note button styles */
+        #persistent-audio-frame {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border: none;
+            z-index: 9999;
+        }
+        
+        /* Musical note button for audio control */
+        #musical-note-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 120, 120, 0.5);
+            border-radius: 50%;
+            z-index: 9999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(255, 120, 120, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        #musical-note-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 120, 120, 0.5);
+        }
+        
+        #musical-note-button:active {
+            transform: scale(0.95);
+        }
+        
+        #musical-note-button .note-icon {
+            font-size: 24px;
+            color: #fff;
+            position: relative;
+        }
+        
+        #musical-note-button .play-icon,
+        #musical-note-button .pause-icon {
+            position: absolute;
+            font-size: 16px;
+            color: #ff3a3a;
+            transition: all 0.3s ease;
+        }
+        
+        #musical-note-button .play-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button .pause-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button.playing .play-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        #musical-note-button.playing .pause-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .play-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .pause-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        /* Track info tooltip */
+        #track-tooltip {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 120, 120, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff;
+            font-size: 14px;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 9998;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        #track-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Remove old audio controls if they exist */
+        #global-audio-controls {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Hidden iframe for persistent audio -->
+    <iframe id="persistent-audio-frame" src="audio-player.html" style="display:none;"></iframe>
+    
+    <!-- Musical note button for audio control -->
+    <div id="musical-note-button">
+        <div class="note-icon">♪</div>
+        <div class="play-icon">▶</div>
+        <div class="pause-icon">❚❚</div>
+    </div>
+    
+    <!-- Track info tooltip -->
+    <div id="track-tooltip">No track playing</div>
+    
+    <div class="grid-background"></div>
+    
+    <header>
+        <h1>Writing Tools</h1>
+        <p>Discover the creative process and writing techniques behind Living Paper.</p>
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button">
+                <i class="fas fa-book"></i>
+                <span>Books</span>
+            </a>
+            <a href="board.html" class="nav-button">
+                <i class="fas fa-border-style"></i>
+                <span>Board</span>
+            </a>
+            <div class="nav-button">
+                <i class="fas fa-pen"></i>
+                <span>Pen</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Spline 3D Viewer -->
+    <div class="spline-container">
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+        <spline-viewer url="https://prod.spline.design/Uezh5Z1I0khozmvI/scene.splinecode"></spline-viewer>
+    </div>
+
+    <!-- Website Shortcuts -->
+    <div class="shortcuts-container">
+        <h2 class="shortcuts-title">Quick Links</h2>
+        <div class="shortcuts-grid">
+            <a href="https://mail.google.com" target="_blank" class="shortcut-box">
+                <div class="shortcut-icon gmail-icon">
+                    <i class="fab fa-google"></i>
+                </div>
+                <div class="shortcut-name">Gmail</div>
+            </a>
+            <a href="https://www.pinterest.com" target="_blank" class="shortcut-box">
+                <div class="shortcut-icon pinterest-icon">
+                    <i class="fab fa-pinterest-p"></i>
+                </div>
+                <div class="shortcut-name">Pinterest</div>
+            </a>
+            <a href="https://www.threads.net" target="_blank" class="shortcut-box">
+                <div class="shortcut-icon threads-icon">
+                    <i class="fa-solid fa-at"></i>
+                </div>
+                <div class="shortcut-name">Threads</div>
+            </a>
+            <a href="https://www.spotify.com" target="_blank" class="shortcut-box">
+                <div class="shortcut-icon spotify-icon">
+                    <i class="fab fa-spotify"></i>
+                </div>
+                <div class="shortcut-name">Spotify</div>
+            </a>
+            <a href="https://www.youtube.com" target="_blank" class="shortcut-box">
+                <div class="shortcut-icon youtube-icon">
+                    <i class="fab fa-youtube"></i>
+                </div>
+                <div class="shortcut-name">YouTube</div>
+            </a>
+            <a href="https://chat.openai.com" target="_blank" class="shortcut-box">
+                <div class="shortcut-icon chatgpt-icon">
+                    <i class="fas fa-message"></i>
+                </div>
+                <div class="shortcut-name">ChatGPT</div>
+            </a>
+            <a href="https://claude.ai" target="_blank" class="shortcut-box">
+                <div class="shortcut-icon claude-icon">
+                    <i class="fas fa-circle-half-stroke"></i>
+                </div>
+                <div class="shortcut-name">Claude AI</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Add audio player functionality
+        function setupAudioPlayer() {
+            const musicalNoteButton = document.getElementById('musical-note-button');
+            const trackTooltip = document.getElementById('track-tooltip');
+            const persistentAudioFrame = document.getElementById('persistent-audio-frame');
+            
+            // Function to send message to iframe
+            function sendMessageToIframe(message) {
+                try {
+                    // Wait for iframe to load
+                    if (persistentAudioFrame.contentWindow) {
+                        persistentAudioFrame.contentWindow.postMessage(message, '*');
+                        console.log("Message sent to iframe:", message);
+                    } else {
+                        console.error("Iframe content window not available");
+                    }
+                } catch (e) {
+                    console.error("Error sending message to iframe:", e);
+                }
+            }
+            
+            // Check if there's a saved track in localStorage
+            const savedTrack = localStorage.getItem('currentTrack');
+            const savedTime = localStorage.getItem('currentTime');
+            const wasPlaying = localStorage.getItem('isPlaying') === 'true';
+            
+            // Update musical note button state based on saved state
+            if (wasPlaying) {
+                musicalNoteButton.classList.add('playing');
+            }
+            
+            // Update track tooltip
+            const trackName = localStorage.getItem('currentTrackName') || 'No track playing';
+            trackTooltip.textContent = trackName;
+            
+            // Musical note button click handler
+            musicalNoteButton.addEventListener('click', () => {
+                if (wasPlaying) {
+                    sendMessageToIframe({
+                        type: 'pause'
+                    });
+                    musicalNoteButton.classList.remove('playing');
+                } else {
+                    sendMessageToIframe({
+                        type: 'play'
+                    });
+                    musicalNoteButton.classList.add('playing');
+                }
+            });
+            
+            // Double click on musical note to play next track
+            musicalNoteButton.addEventListener('dblclick', () => {
+                sendMessageToIframe({
+                    type: 'nextTrack'
+                });
+            });
+            
+            // Show track tooltip on hover
+            musicalNoteButton.addEventListener('mouseenter', () => {
+                const trackName = localStorage.getItem('currentTrackName') || 'No track playing';
+                trackTooltip.textContent = trackName;
+                trackTooltip.classList.add('visible');
+            });
+            
+            // Hide track tooltip on mouse leave
+            musicalNoteButton.addEventListener('mouseleave', () => {
+                trackTooltip.classList.remove('visible');
+            });
+            
+            // Listen for messages from iframe
+            window.addEventListener('message', function(event) {
+                const data = event.data;
+                
+                if (data.type === 'playStateChanged') {
+                    if (data.isPlaying) {
+                        musicalNoteButton.classList.add('playing');
+                    } else {
+                        musicalNoteButton.classList.remove('playing');
+                    }
+                } else if (data.type === 'trackChanged') {
+                    // Update track tooltip
+                    trackTooltip.textContent = data.trackName;
+                }
+            });
+            
+            // Make sure iframe is loaded before sending messages
+            persistentAudioFrame.onload = function() {
+                console.log("Iframe loaded on pen page");
+            };
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Existing initialization code
+            // ...
+            
+            // Add audio player setup
+            setupAudioPlayer();
+        });
+    </script>
+</body>
+</html> 

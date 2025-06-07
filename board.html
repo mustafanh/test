@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art Board - Living Paper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Caveat', 'Comic Sans MS', cursive, sans-serif;
+            background: #0a0a0a;
+            min-height: 150vh; /* Taller than viewport to ensure scrollability */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+            position: relative;
+            color: #fff;
+            /* Ensure the full body can scroll */
+            box-sizing: border-box;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(https://cdn.discordapp.com/attachments/414841505954529301/1355241227422798027/4025382A-0351-41CD-9FA6-6FCE07C7FD7F.jpg?ex=67f75f7f&is=67f60dff&hm=0f5795963baa6955adb7aeb340226e22bb7b8bcf976b4316655e4ea7c098ea04&);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            filter: brightness(0.5);
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        /* Remove content-wrapper class as it's not needed and might be causing issues */
+        .content-wrapper {
+            display: none;
+        }
+
+        /* Remove brick wall overlay */
+        body::after {
+            display: none;
+        }
+
+        header {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #F5DEB3;
+            text-align: center;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            font-family: 'Permanent Marker', 'Comic Sans MS', cursive;
+        }
+
+        header p {
+            font-size: 1.4rem;
+            color: rgba(255, 255, 255, 0.9);
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Hide cafe decorations */
+        .cafe-decor {
+            display: none;
+        }
+
+        .coffee-cup {
+            display: none;
+        }
+
+        .plant {
+            display: none;
+        }
+
+        .light-effect {
+            display: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2.5rem;
+        }
+
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.2rem;
+            background: rgba(80, 50, 30, 0.6);
+            border: 1px solid rgba(210, 180, 140, 0.3);
+            border-radius: 12px;
+            color: #F5DEB3;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 120px;
+            height: 120px;
+            justify-content: center;
+            text-decoration: none;
+            backdrop-filter: blur(3px);
+        }
+
+        .nav-button:hover {
+            background: rgba(100, 60, 35, 0.7);
+            transform: translateY(-5px);
+            border-color: rgba(210, 180, 140, 0.5);
+        }
+
+        .nav-button i {
+            font-size: 2rem;
+            color: #F5DEB3;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-button span {
+            font-size: 0.9rem;
+            color: rgba(245, 222, 179, 0.9);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Chalkboard styling - revert to original style but keep new colors */
+        .chalkboard {
+            background-color: #2a5d3c; /* Original green color */
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+                radial-gradient(rgba(0, 0, 0, 0.2) 2px, transparent 2px);
+            background-size: 
+                50px 50px,
+                50px 50px,
+                20px 20px;
+            border: 20px solid #5E3B22; /* Keep the coffee shop wood color */
+            border-radius: 5px;
+            box-shadow: 
+                0 0 10px 5px rgba(0, 0, 0, 0.5),
+                inset 0 0 30px rgba(0, 0, 0, 0.3);
+            max-width: 1000px;
+            width: 100%;
+            min-height: 600px;
+            position: relative;
+            z-index: 2;
+            padding: 40px;
+            margin-bottom: 50px;
+            background-blend-mode: normal;
+        }
+
+        /* Sleeping cat in the corner styling */
+        .sleeping-cat {
+            position: absolute;
+            top: -30px;
+            left: 30px;
+            width: 100px;
+            height: 60px;
+            z-index: 15;
+        }
+
+        .cat-body {
+            position: absolute;
+            width: 70px;
+            height: 35px;
+            background-color: #333;
+            border-radius: 50% 40% 40% 50%;
+            top: 10px;
+            left: 0;
+        }
+
+        .cat-head {
+            position: absolute;
+            width: 35px;
+            height: 30px;
+            background-color: #333;
+            border-radius: 50%;
+            top: 5px;
+            left: -15px;
+        }
+
+        .cat-ear {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 15px solid #333;
+        }
+
+        .cat-ear-left {
+            transform: rotate(-30deg);
+            top: -5px;
+            left: -10px;
+        }
+
+        .cat-ear-right {
+            transform: rotate(30deg);
+            top: -5px;
+            left: 15px;
+        }
+
+        .cat-tail {
+            position: absolute;
+            width: 40px;
+            height: 8px;
+            background-color: #333;
+            border-radius: 4px;
+            top: 18px;
+            right: -20px;
+            transform-origin: left center;
+            animation: tailWag 3s ease-in-out infinite;
+        }
+
+        @keyframes tailWag {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(5deg); }
+            75% { transform: rotate(15deg); }
+        }
+
+        /* Enhanced cat features */
+        .cat-face {
+            position: absolute;
+            width: 20px;
+            height: 10px;
+            top: 15px;
+            left: -5px;
+        }
+
+        .cat-closed-eye {
+            position: absolute;
+            width: 8px;
+            height: 1px;
+            background-color: #F5DEB3;
+            border-radius: 50%;
+        }
+
+        .cat-closed-eye-left {
+            top: 2px;
+            left: 0;
+            transform: rotate(10deg);
+        }
+
+        .cat-closed-eye-right {
+            top: 2px;
+            left: 12px;
+            transform: rotate(-10deg);
+        }
+
+        .cat-nose {
+            position: absolute;
+            width: 4px;
+            height: 3px;
+            background-color: pink;
+            border-radius: 50%;
+            top: 5px;
+            left: 8px;
+        }
+
+        .cat-whisker {
+            position: absolute;
+            width: 10px;
+            height: 1px;
+            background-color: #F5DEB3;
+        }
+
+        .cat-whisker-1 {
+            top: 7px;
+            left: -8px;
+            transform: rotate(-10deg);
+        }
+
+        .cat-whisker-2 {
+            top: 9px;
+            left: -7px;
+        }
+
+        .cat-whisker-3 {
+            top: 11px;
+            left: -8px;
+            transform: rotate(10deg);
+        }
+
+        .cat-whisker-4 {
+            top: 7px;
+            left: 18px;
+            transform: rotate(10deg);
+        }
+
+        .cat-whisker-5 {
+            top: 9px;
+            left: 17px;
+        }
+
+        .cat-whisker-6 {
+            top: 11px;
+            left: 18px;
+            transform: rotate(-10deg);
+        }
+
+        /* Remove wood frame styling */
+        .chalkboard::before {
+            display: none;
+        }
+
+        .chalk-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Caveat', 'Comic Sans MS', cursive;
+            line-height: 1.6;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .chalk-heading {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed rgba(245, 222, 179, 0.4);
+            font-family: 'Permanent Marker', 'Comic Sans MS', cursive;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: #F5DEB3;
+        }
+
+        .chalk-text p {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-left: 20px;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .chalk-list {
+            list-style: none;
+            padding-left: 30px;
+            margin: 25px 0;
+        }
+
+        .chalk-list li {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            position: relative;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .chalk-list li::before {
+            content: '•';
+            position: absolute;
+            left: -25px;
+            color: #F5DEB3;
+        }
+
+        .chalk-doodle {
+            position: absolute;
+            opacity: 0.7;
+            color: #F5DEB3;
+        }
+
+        .doodle-1 {
+            top: 80px;
+            right: 50px;
+            font-size: 4rem;
+            transform: rotate(15deg);
+        }
+
+        .doodle-2 {
+            bottom: 70px;
+            left: 60px;
+            font-size: 3rem;
+            transform: rotate(-10deg);
+        }
+
+        .chalk-dust {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.05));
+        }
+
+        .eraser-marks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background-image: 
+                radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        /* Chalk tray styled like coffee shop counter */
+        .chalk-tray {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 25px;
+            background: #5E3B22;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Canvas for drawing */
+        #chalkboard-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAFEmlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOSAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDIzLTAzLTEwVDIwOjI5OjA1KzAxOjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyMy0wMy0xMFQyMDozMjoxNSswMTowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAyMy0wMy0xMFQyMDozMjoxNSswMTowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpjNzVkM2ZhMC1hMDAwLTQzNDgtOWY1OS05MWYyYmU3MzBlM2YiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6Yzc1ZDNmYTAtYTAwMC00MzQ4LTlmNTktOTFmMmJlNzMwZTNmIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6Yzc1ZDNmYTAtYTAwMC00MzQ4LTlmNTktOTFmMmJlNzMwZTNmIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpjNzVkM2ZhMC1hMDAwLTQzNDgtOWY1OS05MWYyYmU3MzBlM2YiIHN0RXZ0OndoZW49IjIwMjMtMDMtMTBUMjA6Mjk6MDUrMDE6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE5IChXaW5kb3dzKSIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6vZPcgAAACP0lEQVRYhe2XP2gTYRjGf++X1KZJm6RNrTbWVrFY/IO2iog6+GdQFCmCgw6Kg3+Gg3RxEQc3wUUQRBQVFEQXURRxEQdRQUVapp2szVVjmsaa5rjcXe4SLzQkuQb8wQPH3ff9vc/z3vfeHXzlk5a0BHR0dNwfHh7eYJrmsjTz0TSNtrY2ZmZmzg0MDDxwHCfvum7ANM2lXYIkHb81PBx/mRgHyE9NkU6nSaVSLC4urtJ13U4iL7JUqfvLMAxMw+Dp48cMDQ0BMD8/z1+Apb1HRaClpYVQKMTQ0BCTk5MA1dPPbG4WbowJ3bnA2toab968AUDXdTRNW14BS722bdv29NGjR5cBEonEc9M0CQQC7Nu7F13XsW2beDzO69evAXAcB9d1EUIAWJFIZP3Y2Ng9YLdfsOYVBIeQXDl3jqFLl3AcF3d+vrqPtrLYnKoAIUkmD5/k+YZNR0cHuq5XXTGWM7Jav/HxcQBevPhIOBwmFovVgOsC9u7ZU6rqggJEbdQDsJVlX8lncrkcACMjI2QymYLzlV1BJBIpdEXhbG4GJcpagdHoaRLvP5HL5QiHw6RSqWrAVCq13EmBQq9bBdcDcGyLdaE29h86w/0nKSzTJBwOU876Xc8AVkpJAFfNIPkc8UiE9y9fcufGdd6Njlb3kc0VbVpAV1fX3Ww2S09PTxXQp3y+4tztERAMBrcIIWhra1tWgE8vFQoGg9sLc0eTJElcvXLlSiwWI5vNVmvFHxkMBsl0d3cPTkxMLGiatrQr+I/1DRbW/AaDa8uOAAAAAElFTkSuQmCC'), auto;
+        }
+
+        /* Controls for the chalkboard */
+        .chalkboard-controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .clear-btn {
+            padding: 12px 30px;
+            background: #5E3B22;
+            border: 2px solid rgba(210, 180, 140, 0.3);
+            border-radius: 8px;
+            color: #F5DEB3;
+            font-family: 'Permanent Marker', cursive;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .clear-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .clear-btn:hover {
+            background: #7C4F2F;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        .clear-btn:hover::before {
+            left: 100%;
+        }
+
+        .clear-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .chalk-btn {
+            display: none;
+        }
+
+        .coffee-beans {
+            display: none;
+        }
+
+        /* Style the empty space to ensure background visibility */
+        .empty-space {
+            width: 100%;
+            height: 100vh; /* Full viewport height */
+            margin-top: 2rem;
+            position: relative;
+            z-index: 1;
+            background-color: transparent; /* Ensure this is transparent */
+        }
+
+        /* Sheets grid styling */
+        .sheets-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 2rem auto 3rem;
+            padding: 1rem;
+            z-index: 2;
+        }
+
+        .sheets-title {
+            font-size: 2rem;
+            color: #F5DEB3;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-family: 'Permanent Marker', 'Comic Sans MS', cursive;
+        }
+
+        .sheets-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .sheet {
+            aspect-ratio: 1;
+            background-color: #f5f5f5;
+            border: 2px solid #5E3B22;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            font-family: 'Arial', sans-serif;
+            font-size: 1rem;
+            color: #333;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            cursor: text;
+            background-image: 
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .sheet:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(94, 59, 34, 0.5), 0 6px 12px rgba(0, 0, 0, 0.3);
+            transform: translateY(-5px);
+        }
+
+        .sheet:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Colored sheet styles */
+        .sheet-blue {
+            background-color: #e6f7ff;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-green {
+            background-color: #e6ffe6;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-yellow {
+            background-color: #fffff0;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-pink {
+            background-color: #ffe6f2;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-purple {
+            background-color: #f2e6ff;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-orange {
+            background-color: #fff0e6;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-teal {
+            background-color: #e6ffff;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-red {
+            background-color: #ffe6e6;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-lavender {
+            background-color: #f0e6ff;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-mint {
+            background-color: #e6fff2;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-coral {
+            background-color: #ffe6e6;
+            border-color: #5E3B22;
+        }
+        
+        .sheet-indigo {
+            background-color: #e6e6ff;
+            border-color: #5E3B22;
+        }
+
+        .placeholder {
+            color: #999;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .chalkboard {
+                padding: 20px;
+            }
+            
+            .chalk-heading {
+                font-size: 2.5rem;
+            }
+            
+            .chalk-text p,
+            .chalk-list li {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Add the musical note button styles */
+        #persistent-audio-frame {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border: none;
+            z-index: 9999;
+        }
+        
+        /* Musical note button for audio control */
+        #musical-note-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 120, 120, 0.5);
+            border-radius: 50%;
+            z-index: 9999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(255, 120, 120, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        #musical-note-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 120, 120, 0.5);
+        }
+        
+        #musical-note-button:active {
+            transform: scale(0.95);
+        }
+        
+        #musical-note-button .note-icon {
+            font-size: 24px;
+            color: #fff;
+            position: relative;
+        }
+        
+        #musical-note-button .play-icon,
+        #musical-note-button .pause-icon {
+            position: absolute;
+            font-size: 16px;
+            color: #ff3a3a;
+            transition: all 0.3s ease;
+        }
+        
+        #musical-note-button .play-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button .pause-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button.playing .play-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        #musical-note-button.playing .pause-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .play-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .pause-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        /* Track info tooltip */
+        #track-tooltip {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 120, 120, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff;
+            font-size: 14px;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 9998;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        #track-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Remove old audio controls if they exist */
+        #global-audio-controls {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Hidden iframe for persistent audio -->
+    <iframe id="persistent-audio-frame" src="audio-player.html" style="display:none;"></iframe>
+    
+    <!-- Musical note button for audio control -->
+    <div id="musical-note-button">
+        <div class="note-icon">♪</div>
+        <div class="play-icon">▶</div>
+        <div class="pause-icon">❚❚</div>
+    </div>
+    
+    <!-- Track info tooltip -->
+    <div id="track-tooltip">No track playing</div>
+    
+    <div class="cafe-decor">
+        <div class="coffee-cup"></div>
+        <div class="plant"></div>
+        <div class="coffee-beans"></div>
+        <div class="light-effect"></div>
+    </div>
+
+    <header>
+        <h1>Art Board</h1>
+        <p>Explore the artistic elements and design principles behind Living Paper.</p>
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button">
+                <i class="fas fa-book"></i>
+                <span>Books</span>
+            </a>
+            <div class="nav-button">
+                <i class="fas fa-border-style"></i>
+                <span>Board</span>
+            </div>
+            <a href="pen.html" class="nav-button">
+                <i class="fas fa-pen"></i>
+                <span>Pen</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="chalkboard">
+        <div class="eraser-marks"></div>
+        <canvas id="chalkboard-canvas"></canvas>
+        
+        <!-- Sleeping cat in the corner -->
+        <div class="sleeping-cat">
+            <div class="cat-body"></div>
+            <div class="cat-head">
+                <div class="cat-ear cat-ear-left"></div>
+                <div class="cat-ear cat-ear-right"></div>
+                <div class="cat-face">
+                    <div class="cat-closed-eye cat-closed-eye-left"></div>
+                    <div class="cat-closed-eye cat-closed-eye-right"></div>
+                    <div class="cat-nose"></div>
+                    <div class="cat-whisker cat-whisker-1"></div>
+                    <div class="cat-whisker cat-whisker-2"></div>
+                    <div class="cat-whisker cat-whisker-3"></div>
+                    <div class="cat-whisker cat-whisker-4"></div>
+                    <div class="cat-whisker cat-whisker-5"></div>
+                    <div class="cat-whisker cat-whisker-6"></div>
+                </div>
+            </div>
+            <div class="cat-tail"></div>
+        </div>
+        
+        <div class="chalk-text">
+            <h2 class="chalk-heading">Design Philosophy</h2>
+            <p>Living Paper represents a fusion of traditional artistic craftsmanship and modern design principles. The striking white horse on a deep red background symbolizes the dynamic spirit of creativity.</p>
+            <p>Each element carefully creates a harmonious blend of classical and contemporary artistic expression, making this not just a book, but a piece of art.</p>
+        </div>
+        
+        <div class="chalk-text" style="margin-top: 60px;">
+            <h2 class="chalk-heading">Artistic Elements</h2>
+            <ul class="chalk-list">
+                <li>Dynamic composition with central white horse</li>
+                <li>Contrasting color scheme of deep red and gold</li>
+                <li>Traditional artistic tools and symbols</li>
+                <li>Modern typography and layout</li>
+                <li>Interactive design elements</li>
+            </ul>
+        </div>
+        
+        <div class="chalk-doodle doodle-1">✧</div>
+        <div class="chalk-doodle doodle-2">★</div>
+        
+        <div class="chalk-dust"></div>
+        <div class="chalk-tray"></div>
+    </div>
+
+    <div class="chalkboard-controls">
+        <button class="clear-btn" id="clear-board">Clear Board</button>
+    </div>
+    
+    <!-- Sheets grid -->
+    <div class="sheets-container">
+        <h2 class="sheets-title">Notes</h2>
+        <div class="sheets-grid">
+            <div class="sheet sheet-blue" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-green" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-yellow" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-pink" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-purple" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-orange" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-teal" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-red" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-lavender" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-mint" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-coral" contenteditable="true" tabindex="0"></div>
+            <div class="sheet sheet-indigo" contenteditable="true" tabindex="0"></div>
+        </div>
+    </div>
+    
+    <!-- Empty space below the sheets -->
+    <div class="empty-space"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('chalkboard-canvas');
+            const ctx = canvas.getContext('2d');
+            const chalkboard = document.querySelector('.chalkboard');
+            
+            // Set canvas dimensions to match chalkboard
+            function resizeCanvas() {
+                canvas.width = chalkboard.clientWidth;
+                canvas.height = chalkboard.clientHeight;
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+            let chalkColor = 'rgba(255, 255, 255, 0.8)';
+            let lineWidth = 3;
+            
+            // Drawing functions
+            function startDrawing(e) {
+                isDrawing = true;
+                [lastX, lastY] = getCoordinates(e);
+                
+                // Start drawing immediately on mousedown
+                draw(e);
+            }
+            
+            function stopDrawing() {
+                isDrawing = false;
+            }
+            
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                const [currentX, currentY] = getCoordinates(e);
+                
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.lineWidth = lineWidth;
+                
+                // Main line
+                ctx.strokeStyle = chalkColor;
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(currentX, currentY);
+                ctx.stroke();
+                
+                // Chalk particles for realistic effect
+                for (let i = 0; i < 3; i++) {
+                    const offsetX = Math.random() * 4 - 2;
+                    const offsetY = Math.random() * 4 - 2;
+                    
+                    if (Math.random() > 0.7) {
+                        ctx.fillStyle = chalkColor;
+                        ctx.fillRect(
+                            currentX + offsetX, 
+                            currentY + offsetY, 
+                            Math.random() * 2, 
+                            Math.random() * 2
+                        );
+                    }
+                }
+                
+                lastX = currentX;
+                lastY = currentY;
+            }
+            
+            function getCoordinates(e) {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                return [x, y];
+            }
+            
+            // Mouse event listeners
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('mouseout', stopDrawing);
+            
+            // Touch event listeners for mobile
+            canvas.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            canvas.addEventListener('touchmove', function(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            canvas.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
+            });
+            
+            // Clear board button
+            document.getElementById('clear-board').addEventListener('click', function() {
+                // Clear the canvas (user drawings)
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Hide all pre-existing text elements using visibility instead of display
+                const textElements = document.querySelectorAll('.chalk-text, .chalk-doodle');
+                textElements.forEach(element => {
+                    element.style.visibility = 'hidden';
+                });
+                
+                // Add clear animation effect
+                this.classList.add('clicked');
+                setTimeout(() => {
+                    this.classList.remove('clicked');
+                }, 300);
+            });
+            
+            // Sheets functionality
+            const sheets = document.querySelectorAll('.sheet');
+            
+            // Load saved content from localStorage
+            sheets.forEach((sheet, index) => {
+                const savedContent = localStorage.getItem(`sheet-${index}`);
+                if (savedContent) {
+                    sheet.innerHTML = savedContent;
+                } else {
+                    // Add placeholder text if sheet is empty
+                    sheet.setAttribute('data-placeholder', 'Click to write...');
+                    sheet.classList.add('empty');
+                }
+            });
+            
+            // Save content as user types
+            sheets.forEach((sheet, index) => {
+                sheet.addEventListener('input', function() {
+                    localStorage.setItem(`sheet-${index}`, this.innerHTML);
+                    if (this.innerHTML.trim() !== '') {
+                        this.classList.remove('empty');
+                    } else {
+                        this.classList.add('empty');
+                    }
+                });
+                
+                // Add placeholder text on blur if empty
+                sheet.addEventListener('blur', function() {
+                    if (this.innerHTML.trim() === '') {
+                        this.classList.add('empty');
+                    }
+                });
+                
+                // Remove placeholder on focus
+                sheet.addEventListener('focus', function() {
+                    this.classList.remove('empty');
+                });
+            });
+        });
+
+        // Add audio player functionality
+        function setupAudioPlayer() {
+            const musicalNoteButton = document.getElementById('musical-note-button');
+            const trackTooltip = document.getElementById('track-tooltip');
+            const persistentAudioFrame = document.getElementById('persistent-audio-frame');
+            
+            // Function to send message to iframe
+            function sendMessageToIframe(message) {
+                try {
+                    // Wait for iframe to load
+                    if (persistentAudioFrame.contentWindow) {
+                        persistentAudioFrame.contentWindow.postMessage(message, '*');
+                        console.log("Message sent to iframe:", message);
+                    } else {
+                        console.error("Iframe content window not available");
+                    }
+                } catch (e) {
+                    console.error("Error sending message to iframe:", e);
+                }
+            }
+            
+            // Check if there's a saved track in localStorage
+            const savedTrack = localStorage.getItem('currentTrack');
+            const savedTime = localStorage.getItem('currentTime');
+            const wasPlaying = localStorage.getItem('isPlaying') === 'true';
+            
+            // Update musical note button state based on saved state
+            if (wasPlaying) {
+                musicalNoteButton.classList.add('playing');
+            }
+            
+            // Update track tooltip
+            const trackName = localStorage.getItem('currentTrackName') || 'No track playing';
+            trackTooltip.textContent = trackName;
+            
+            // Musical note button click handler
+            musicalNoteButton.addEventListener('click', () => {
+                if (wasPlaying) {
+                    sendMessageToIframe({
+                        type: 'pause'
+                    });
+                    musicalNoteButton.classList.remove('playing');
+                } else {
+                    sendMessageToIframe({
+                        type: 'play'
+                    });
+                    musicalNoteButton.classList.add('playing');
+                }
+            });
+            
+            // Double click on musical note to play next track
+            musicalNoteButton.addEventListener('dblclick', () => {
+                sendMessageToIframe({
+                    type: 'nextTrack'
+                });
+            });
+            
+            // Show track tooltip on hover
+            musicalNoteButton.addEventListener('mouseenter', () => {
+                const trackName = localStorage.getItem('currentTrackName') || 'No track playing';
+                trackTooltip.textContent = trackName;
+                trackTooltip.classList.add('visible');
+            });
+            
+            // Hide track tooltip on mouse leave
+            musicalNoteButton.addEventListener('mouseleave', () => {
+                trackTooltip.classList.remove('visible');
+            });
+            
+            // Listen for messages from iframe
+            window.addEventListener('message', function(event) {
+                const data = event.data;
+                
+                if (data.type === 'playStateChanged') {
+                    if (data.isPlaying) {
+                        musicalNoteButton.classList.add('playing');
+                    } else {
+                        musicalNoteButton.classList.remove('playing');
+                    }
+                } else if (data.type === 'trackChanged') {
+                    // Update track tooltip
+                    trackTooltip.textContent = data.trackName;
+                }
+            });
+            
+            // Make sure iframe is loaded before sending messages
+            persistentAudioFrame.onload = function() {
+                console.log("Iframe loaded on board page");
+            };
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Existing initialization code
+            // ...
+            
+            // Add audio player setup
+            setupAudioPlayer();
+        });
+    </script>
+</body>
+</html> 

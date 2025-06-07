@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Room - Living Paper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+            position: relative;
+            color: #fff;
+        }
+
+        header {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            background: linear-gradient(to right, #bab2b2 20%, #fad3d3 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: left;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #888;
+            text-align: left;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2.5rem;
+        }
+
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 120px;
+            height: 120px;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-button i {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-button span {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, #330000 0%, #000 100%);
+            z-index: 0;
+        }
+
+        /* Music notes animation */
+        .music-notes-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .music-note-float {
+            position: absolute;
+            font-size: 30px;
+            color: rgba(255, 120, 120, 0.6);
+            animation: floatUp 10s linear infinite;
+            z-index: 1;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .content-container {
+            width: 100%;
+            max-width: 1000px;
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #fff;
+        }
+
+        .music-player {
+            width: 100%;
+            margin-bottom: 2rem;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .playlist {
+            list-style: none;
+        }
+
+        .playlist-item {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .playlist-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .playlist-item i {
+            margin-right: 1rem;
+            color: #ff3a3a;
+        }
+        
+        /* Spline viewer container */
+        .spline-container {
+            width: 100%;
+            max-width: 1000px;
+            height: 400px;
+            margin: 2rem auto;
+            position: relative;
+            z-index: 4;
+            border-radius: 12px;
+            overflow: hidden;
+            pointer-events: none; /* Prevents mouse interaction */
+        }
+        
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Audio visualization waves */
+        .audio-visualization {
+            width: 100%;
+            max-width: 2000px; /* Wider to cover more of the background */
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            position: fixed; /* Fixed to the viewport */
+            z-index: 1; /* Lower z-index so it's behind everything */
+            pointer-events: none;
+            height: 200px;
+            background: transparent;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.5; /* Make it more subtle */
+        }
+
+        .wave-container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .audio-wave {
+            width: 100%;
+            height: 200px;
+            position: relative;
+        }
+
+        .audio-wave svg {
+            width: 100%; /* Changed from 300% to 100% to keep waves in place */
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .audio-wave path {
+            stroke: url(#wave-gradient); /* Use gradient instead of solid color */
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .wave-active {
+            box-shadow: 0 0 15px rgba(255, 120, 120, 0.4); /* Changed to match the red theme */
+        }
+
+        /* Hidden iframe for persistent audio */
+        #persistent-audio-frame {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border: none;
+            z-index: 9999;
+        }
+        
+        /* Musical note button for audio control */
+        #musical-note-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 120, 120, 0.5);
+            border-radius: 50%;
+            z-index: 9999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(255, 120, 120, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        #musical-note-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 120, 120, 0.5);
+        }
+        
+        #musical-note-button:active {
+            transform: scale(0.95);
+        }
+        
+        #musical-note-button .note-icon {
+            font-size: 24px;
+            color: #fff;
+            position: relative;
+        }
+        
+        #musical-note-button .play-icon,
+        #musical-note-button .pause-icon {
+            position: absolute;
+            font-size: 16px;
+            color: #ff3a3a;
+            transition: all 0.3s ease;
+        }
+        
+        #musical-note-button .play-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button .pause-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button.playing .play-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        #musical-note-button.playing .pause-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .play-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .pause-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        /* Track info tooltip */
+        #track-tooltip {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 120, 120, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff;
+            font-size: 14px;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 9998;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        #track-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Remove old audio controls */
+        #global-audio-controls {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Hidden iframe for persistent audio -->
+    <iframe id="persistent-audio-frame" src="audio-player.html" style="display:none;"></iframe>
+    
+    <!-- Musical note button for audio control -->
+    <div id="musical-note-button">
+        <div class="note-icon">♪</div>
+        <div class="play-icon">▶</div>
+        <div class="pause-icon">❚❚</div>
+    </div>
+    
+    <!-- Track info tooltip -->
+    <div id="track-tooltip">No track playing</div>
+    
+    <!-- Put audio visualization as the first element inside body to ensure it's in background -->
+    <div class="audio-visualization">
+        <div class="wave-container">
+            <div id="audio-wave" class="audio-wave">
+                <!-- SVG will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="grid-background"></div>
+    <div class="music-notes-container"></div>
+    
+    <header>
+        <h1>Music Room</h1>
+        <p>Discover the soundtracks and melodies that inspire the Living Paper experience.</p>
+        <div class="nav-buttons">
+            <a href="index.html" class="nav-button">
+                <i class="fas fa-book"></i>
+                <span>Books</span>
+            </a>
+            <a href="board.html" class="nav-button">
+                <i class="fas fa-border-style"></i>
+                <span>Board</span>
+            </a>
+            <a href="pen.html" class="nav-button">
+                <i class="fas fa-pen"></i>
+                <span>Pen</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="content-container">
+        <h2 class="content-title">Featured Playlist</h2>
+        <div class="music-player">
+            <audio id="audio-player" class="audio-player" controls>
+                <source src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <ul class="playlist">
+                <li class="playlist-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+                    <i class="fas fa-music"></i>
+                    <span>Ambient Study Music</span>
+                </li>
+                <li class="playlist-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">
+                    <i class="fas fa-music"></i>
+                    <span>Creative Flow Melody</span>
+                </li>
+                <li class="playlist-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">
+                    <i class="fas fa-music"></i>
+                    <span>Writing Inspiration</span>
+                </li>
+                <li class="playlist-item" data-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3">
+                    <i class="fas fa-music"></i>
+                    <span>Focus & Concentration</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Spline Viewer -->
+    <div class="spline-container">
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+        <spline-viewer url="https://prod.spline.design/7RxjIkFPQfo8JUgb/scene.splinecode"></spline-viewer>
+    </div>
+
+    <script>
+        // Create floating music notes
+        function createMusicNotes() {
+            const notesContainer = document.querySelector('.music-notes-container');
+            const notes = ['♩', '♪', '♫', '♬', '𝄞'];
+            const colors = ['#ff3a3a', '#ff7b7b', '#ffacac'];
+            
+            for (let i = 0; i < 20; i++) {
+                const note = document.createElement('div');
+                note.className = 'music-note-float';
+                note.textContent = notes[Math.floor(Math.random() * notes.length)];
+                note.style.left = `${Math.random() * 100}%`;
+                note.style.color = colors[Math.floor(Math.random() * colors.length)];
+                note.style.animationDelay = `${Math.random() * 10}s`;
+                note.style.animationDuration = `${10 + Math.random() * 15}s`;
+                note.style.fontSize = `${20 + Math.random() * 30}px`;
+                note.style.opacity = `${0.4 + Math.random() * 0.6}`;
+                
+                notesContainer.appendChild(note);
+            }
+        }
+
+        // Create linear wave visualization
+        function createLinearWaveform() {
+            const audioWave = document.getElementById('audio-wave');
+            
+            // Clear any existing content
+            audioWave.innerHTML = '';
+            
+            // Create SVG element
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('width', '100%');
+            svg.setAttribute('height', '100%');
+            svg.setAttribute('viewBox', '0 0 1000 100');
+            svg.setAttribute('preserveAspectRatio', 'none');
+            
+            // Create gradient definition
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const gradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+            gradient.setAttribute('id', 'wave-gradient');
+            gradient.setAttribute('x1', '0%');
+            gradient.setAttribute('y1', '0%');
+            gradient.setAttribute('x2', '100%');
+            gradient.setAttribute('y2', '0%');
+            
+            // Add gradient stops with colors that match the page theme
+            const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop1.setAttribute('offset', '0%');
+            stop1.setAttribute('style', 'stop-color:#ff3a3a;stop-opacity:0.8');
+            
+            const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop2.setAttribute('offset', '50%');
+            stop2.setAttribute('style', 'stop-color:#ff7b7b;stop-opacity:0.8');
+            
+            const stop3 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+            stop3.setAttribute('offset', '100%');
+            stop3.setAttribute('style', 'stop-color:#ffacac;stop-opacity:0.8');
+            
+            gradient.appendChild(stop1);
+            gradient.appendChild(stop2);
+            gradient.appendChild(stop3);
+            defs.appendChild(gradient);
+            svg.appendChild(defs);
+            
+            // Create path element
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', generateWaveformPath());
+            path.setAttribute('stroke', 'url(#wave-gradient)');
+            path.setAttribute('stroke-width', '2');
+            path.setAttribute('fill', 'none');
+            
+            // Add path to SVG
+            svg.appendChild(path);
+            
+            // Add SVG to container
+            audioWave.appendChild(svg);
+        }
+        
+        // Generate a waveform path similar to the image
+        function generateWaveformPath() {
+            let path = "M 0,50 ";
+            const segments = 100; // More segments for smoother waves
+            const width = 1000;   // Changed from 2000 to 1000 to match the viewBox
+            const segmentWidth = width / segments;
+            
+            // Generate more natural-looking waves for a background effect
+            for (let i = 0; i < segments; i++) {
+                const x = i * segmentWidth;
+                // Use a combination of sine waves with different frequencies for more variety
+                const height = 20 + 
+                    Math.sin(i * 0.03) * 15 + 
+                    Math.sin(i * 0.07) * 10 + 
+                    Math.sin(i * 0.11) * 5;
+                path += `L ${x},${50-height} L ${x+segmentWidth/2},${50+height} `;
+            }
+            
+            return path;
+        }
+        
+        // Audio player functionality with visualization
+        function setupAudioPlayer() {
+            const audioPlayer = document.getElementById('audio-player');
+            const playlistItems = document.querySelectorAll('.playlist-item');
+            const audioWave = document.getElementById('audio-wave');
+            const musicalNoteButton = document.getElementById('musical-note-button');
+            const trackTooltip = document.getElementById('track-tooltip');
+            const persistentAudioFrame = document.getElementById('persistent-audio-frame');
+            
+            // Store track list and names for navigation
+            const trackList = [];
+            const trackNames = {};
+            
+            // Function to send message to iframe
+            function sendMessageToIframe(message) {
+                try {
+                    // Wait for iframe to load
+                    if (persistentAudioFrame.contentWindow) {
+                        persistentAudioFrame.contentWindow.postMessage(message, '*');
+                        console.log("Message sent to iframe:", message);
+                    } else {
+                        console.error("Iframe content window not available");
+                    }
+                } catch (e) {
+                    console.error("Error sending message to iframe:", e);
+                }
+            }
+            
+            // Check if there's a saved track in localStorage
+            const savedTrack = localStorage.getItem('currentTrack');
+            const savedTime = localStorage.getItem('currentTime');
+            const wasPlaying = localStorage.getItem('isPlaying') === 'true';
+            
+            // Collect all tracks and names
+            playlistItems.forEach(item => {
+                const audioSrc = item.getAttribute('data-src');
+                const trackName = item.querySelector('span').textContent;
+                trackList.push(audioSrc);
+                trackNames[audioSrc] = trackName;
+            });
+            
+            // Save track list and names to localStorage
+            localStorage.setItem('trackList', JSON.stringify(trackList));
+            localStorage.setItem('trackNames', JSON.stringify(trackNames));
+            
+            // Click handler for playlist items - Basic playback
+            playlistItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    // Get the selected audio source
+                    const audioSrc = item.getAttribute('data-src');
+                    const trackName = item.querySelector('span').textContent;
+                    
+                    // Update active item styling
+                    playlistItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Save the current track to localStorage
+                    localStorage.setItem('currentTrack', audioSrc);
+                    localStorage.setItem('currentTrackName', trackName);
+                    localStorage.setItem('currentTime', '0');
+                    
+                    // Load the audio file
+                    audioPlayer.src = audioSrc;
+                    
+                    // Update track tooltip
+                    trackTooltip.textContent = trackName;
+                    trackTooltip.classList.add('visible');
+                    
+                    // Send message to iframe to load the track
+                    sendMessageToIframe({
+                        type: 'loadTrack',
+                        src: audioSrc,
+                        play: true
+                    });
+                    
+                    // Try to play with a slight delay (helps on some browsers)
+                    setTimeout(() => {
+                        // Simple play attempt with user feedback
+                        try {
+                            const playPromise = audioPlayer.play();
+                            if (playPromise) {
+                                playPromise.catch(error => {
+                                    console.error("Playback error:", error);
+                                    alert("Unable to play audio automatically. Please click the musical note button.");
+                                });
+                            }
+                        } catch (e) {
+                            console.error("Error playing audio:", e);
+                            alert("Please click the musical note button to start audio.");
+                        }
+                    }, 100);
+                });
+            });
+            
+            // Simplified animation effects without audio analysis
+            audioPlayer.addEventListener('play', () => {
+                // Activate wave styling on play (removed animation)
+                audioWave.classList.add('wave-active');
+                // Save playing state
+                localStorage.setItem('isPlaying', 'true');
+                // Update musical note button
+                musicalNoteButton.classList.add('playing');
+                
+                // Send message to iframe to play
+                sendMessageToIframe({
+                    type: 'play'
+                });
+            });
+            
+            audioPlayer.addEventListener('pause', () => {
+                // Deactivate wave styling on pause (removed animation)
+                audioWave.classList.remove('wave-active');
+                // Save paused state
+                localStorage.setItem('isPlaying', 'false');
+                // Update musical note button
+                musicalNoteButton.classList.remove('playing');
+                
+                // Send message to iframe to pause
+                sendMessageToIframe({
+                    type: 'pause'
+                });
+            });
+            
+            // Save current time periodically
+            audioPlayer.addEventListener('timeupdate', () => {
+                localStorage.setItem('currentTime', audioPlayer.currentTime.toString());
+            });
+            
+            // Musical note button click handler
+            musicalNoteButton.addEventListener('click', () => {
+                if (audioPlayer.paused) {
+                    audioPlayer.play().catch(e => console.error("Error playing audio:", e));
+                } else {
+                    audioPlayer.pause();
+                }
+            });
+            
+            // Double click on musical note to play next track
+            musicalNoteButton.addEventListener('dblclick', () => {
+                sendMessageToIframe({
+                    type: 'nextTrack'
+                });
+            });
+            
+            // Show track tooltip on hover
+            musicalNoteButton.addEventListener('mouseenter', () => {
+                const trackName = localStorage.getItem('currentTrackName') || 'No track playing';
+                trackTooltip.textContent = trackName;
+                trackTooltip.classList.add('visible');
+            });
+            
+            // Hide track tooltip on mouse leave
+            musicalNoteButton.addEventListener('mouseleave', () => {
+                trackTooltip.classList.remove('visible');
+            });
+            
+            // Listen for messages from iframe
+            window.addEventListener('message', function(event) {
+                const data = event.data;
+                
+                if (data.type === 'playStateChanged') {
+                    if (data.isPlaying) {
+                        musicalNoteButton.classList.add('playing');
+                    } else {
+                        musicalNoteButton.classList.remove('playing');
+                    }
+                } else if (data.type === 'trackChanged') {
+                    // Update track tooltip
+                    trackTooltip.textContent = data.trackName;
+                    
+                    // Update active playlist item
+                    playlistItems.forEach(i => {
+                        if (i.getAttribute('data-src') === data.track) {
+                            playlistItems.forEach(item => item.classList.remove('active'));
+                            i.classList.add('active');
+                        }
+                    });
+                }
+            });
+            
+            // Pre-load the saved track or first track
+            if (savedTrack) {
+                // Find the matching playlist item
+                const matchingItem = Array.from(playlistItems).find(item => item.getAttribute('data-src') === savedTrack);
+                if (matchingItem) {
+                    // Update active item styling
+                    playlistItems.forEach(i => i.classList.remove('active'));
+                    matchingItem.classList.add('active');
+                    
+                    // Load the audio file
+                    audioPlayer.src = savedTrack;
+                    audioPlayer.currentTime = parseFloat(savedTime || 0);
+                    
+                    // Update track tooltip
+                    const trackName = localStorage.getItem('currentTrackName') || 'Unknown Track';
+                    trackTooltip.textContent = trackName;
+                    
+                    // Update musical note button state
+                    if (wasPlaying) {
+                        musicalNoteButton.classList.add('playing');
+                    }
+                    
+                    // Resume playback if it was playing
+                    if (wasPlaying) {
+                        setTimeout(() => {
+                            audioPlayer.play().catch(e => console.error("Error resuming playback:", e));
+                        }, 100);
+                    }
+                } else {
+                    // If saved track not found, load first track
+                    if (playlistItems.length > 0) {
+                        const firstTrack = playlistItems[0].getAttribute('data-src');
+                        const firstTrackName = playlistItems[0].querySelector('span').textContent;
+                        audioPlayer.src = firstTrack;
+                        playlistItems[0].classList.add('active');
+                        localStorage.setItem('currentTrack', firstTrack);
+                        localStorage.setItem('currentTrackName', firstTrackName);
+                        localStorage.setItem('currentTime', '0');
+                        trackTooltip.textContent = firstTrackName;
+                    }
+                }
+            } else if (playlistItems.length > 0) {
+                // No saved track, load first track
+                const firstTrack = playlistItems[0].getAttribute('data-src');
+                const firstTrackName = playlistItems[0].querySelector('span').textContent;
+                audioPlayer.src = firstTrack;
+                playlistItems[0].classList.add('active');
+                localStorage.setItem('currentTrack', firstTrack);
+                localStorage.setItem('currentTrackName', firstTrackName);
+                localStorage.setItem('currentTime', '0');
+                trackTooltip.textContent = firstTrackName;
+            }
+
+            // Add prominent instructions for users
+            const playerContainer = document.querySelector('.music-player');
+            const instructions = document.createElement('div');
+            instructions.innerHTML = `
+                <p style="color: #ffcccc; font-size: 1rem; margin: 1rem 0; text-align: center; padding: 1rem; background: rgba(255,0,0,0.1); border-radius: 8px; border: 1px solid rgba(255,80,80,0.3);">
+                    <strong>Important:</strong> Click on a track in the playlist, then click the musical note button in the bottom right corner. Music will continue playing when navigating between pages. Double-click the musical note to play the next track.
+                </p>
+            `;
+            playerContainer.insertBefore(instructions, playerContainer.firstChild);
+            
+            // Add direct click handler for first track
+            const firstItem = document.querySelector('.playlist-item');
+            if (firstItem) {
+                firstItem.addEventListener('click', function() {
+                    // Highlight this with an outline to draw attention
+                    this.style.outline = '2px solid rgba(255, 255, 255, 0.5)';
+                    setTimeout(() => {
+                        this.style.outline = 'none';
+                    }, 2000);
+                });
+            }
+            
+            // Make sure iframe is loaded before sending messages
+            persistentAudioFrame.onload = function() {
+                console.log("Iframe loaded, sending initial state");
+                // Send initial state to iframe
+                if (savedTrack) {
+                    sendMessageToIframe({
+                        type: 'loadTrack',
+                        src: savedTrack,
+                        play: wasPlaying
+                    });
+                }
+            };
+            
+            // Add visibility change handler to save state when page is hidden
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    // Save current state when page is hidden
+                    localStorage.setItem('currentTime', audioPlayer.currentTime.toString());
+                    localStorage.setItem('isPlaying', !audioPlayer.paused);
+                } else {
+                    // Restore state when page becomes visible again
+                    const savedTime = localStorage.getItem('currentTime');
+                    const wasPlaying = localStorage.getItem('isPlaying') === 'true';
+                    
+                    if (savedTime) {
+                        audioPlayer.currentTime = parseFloat(savedTime);
+                    }
+                    
+                    if (wasPlaying && !audioPlayer.paused) {
+                        audioPlayer.play().catch(e => console.error("Error resuming playback after visibility change:", e));
+                    }
+                }
+            });
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createMusicNotes();
+            createLinearWaveform();
+            setupAudioPlayer();
+        });
+    </script>
+</body>
+</html> 

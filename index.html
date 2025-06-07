@@ -1,0 +1,2087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Book Showcase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            overflow-x: hidden;
+            position: relative;
+            color: #fff;
+        }
+
+        /* Music Note Button */
+        .music-note-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 60px;
+            height: 90px;
+            background: none;
+            border: none;
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .music-note {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .note-head {
+            position: absolute;
+            bottom: 20px;
+            right: 0;
+            width: 30px;
+            height: 20px;
+            background: #f4eeee;
+            border-radius: 50%;
+            transform: rotate(-10deg);
+            box-shadow: 0 0 10px rgba(213, 48, 48, 0.5);
+        }
+
+        .note-stem {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            width: 5px;
+            height: 60px;
+            background: #f4eeee;
+            box-shadow: 0 0 10px rgba(255, 58, 58, 0.5);
+        }
+
+        .music-note-btn:hover .note-head,
+        .music-note-btn:hover .note-stem {
+            background: #ff7b7b;
+            box-shadow: 0 0 15px rgba(255, 123, 123, 0.7);
+        }
+
+        .music-note-btn:hover {
+            transform: translateY(-5px) rotate(5deg);
+        }
+
+        /* ElevenLabs Convai Widget Positioning */
+        elevenlabs-convai {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        header {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            background: linear-gradient(
+                130deg,
+                #ebebeb 0%,
+                #c4c4c4 30%,
+                #f2f2f2 50%,
+                #d8d8d8 70%,
+                #ebebeb 100%
+            );
+            background-size: 200% 200%;
+            animation: liquidMetal 8s ease infinite;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: left;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        @keyframes liquidMetal {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #888;
+            text-align: left;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2.5rem;
+        }
+
+        /* Pixel Car Animation */
+        .car-container {
+            width: 100%;
+            height: 100px;
+            margin: 2rem 0;
+            position: relative;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* Road Design */
+        .road {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: #333;
+            z-index: 0;
+        }
+
+        .road::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: repeating-linear-gradient(to right, 
+                #fff 0px,
+                #fff 40px,
+                transparent 40px,
+                transparent 80px
+            );
+            animation: moveRoad 1s linear infinite;
+        }
+
+        @keyframes moveRoad {
+            from {
+                transform: translateX(0);
+            }
+            to {
+                transform: translateX(-80px);
+            }
+        }
+
+        .pixel-car {
+            width: 200px;
+            height: 80px;
+            background-image: url(https://cdn.discordapp.com/attachments/414841505954529301/1354819517938667640/snapedit_1743084527894.png?ex=67f72840&is=67f5d6c0&hm=c206c88fbd5e432c0405e71d63217cf73cc2a937dd6680f359ad8019af54dbe0&);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            position: absolute;
+            right: -200px;
+            animation: drive 12s linear infinite;
+            filter: brightness(1.2);
+            z-index: 1;
+        }
+
+        /* Speed Lines Effect */
+        .speed-lines {
+            position: absolute;
+            left: 180px;
+            top: 20px;
+            height: 40px;
+            width: 60px;
+            z-index: -1;
+        }
+
+        .speed-line {
+            position: absolute;
+            height: 1px;
+            width: 15px;
+            background: #fff;
+            opacity: 0.7;
+            animation: speedLine 0.3s linear infinite;
+        }
+
+        .speed-line:nth-child(1) { top: 10px; }
+        .speed-line:nth-child(2) { top: 20px; }
+        .speed-line:nth-child(3) { top: 30px; }
+        .speed-line:nth-child(4) { top: 15px; left: 20px; }
+        .speed-line:nth-child(5) { top: 25px; left: 20px; }
+
+        @keyframes speedLine {
+            0% {
+                transform: translateX(0);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateX(30px);
+                opacity: 0;
+            }
+        }
+
+        /* Fire Effects */
+        .pixel-car::before {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 2px;
+            bottom: 5px;
+            background: linear-gradient(to right, #ffa500, rgba(255, 255, 255, 0));
+            filter: blur(1px);
+            opacity: 0.6;
+            animation: flicker 0.15s infinite alternate;
+            z-index: -1;
+            right: 20px; /* Position for back wheel */
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.4;
+                width: 20px;
+            }
+            100% {
+                opacity: 0.6;
+                width: 25px;
+            }
+        }
+
+        /* Sparks Effect */
+        .spark {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: spark 0.3s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes spark {
+            0% {
+                transform: translate(0, 0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-8px, 2px);
+                opacity: 0;
+            }
+        }
+
+        @keyframes drive {
+            from {
+                right: -200px;
+            }
+            to {
+                right: calc(100% + 200px);
+            }
+        }
+
+        @keyframes driveFast {
+            from {
+                right: -200px;
+            }
+            to {
+                right: calc(100% + 200px);
+            }
+        }
+
+        .pixel-car.fast {
+            animation-duration: 4s !important;
+            filter: brightness(1.4);
+        }
+
+        .pixel-car.fast .speed-lines {
+            opacity: 1;
+            width: 100px;
+        }
+
+        .pixel-car.fast .speed-line {
+            animation-duration: 0.15s;
+            width: 25px;
+        }
+
+        .pixel-car.fast::before {
+            width: 35px;
+            opacity: 0.9;
+            filter: blur(2px);
+        }
+
+        .spark.enhanced {
+            width: 2px;
+            height: 2px;
+            animation-duration: 0.15s;
+        }
+
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 120px;
+            height: 120px;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .nav-button i {
+            font-size: 2rem;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-button span {
+            font-size: 0.9rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .books-container {
+            position: relative;
+            z-index: 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4rem;
+            max-width: 1200px;
+            width: 100%;
+            padding: 2rem;
+        }
+
+        .book-wrapper {
+            position: relative;
+            perspective: 1000px;
+            height: 450px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .book-wrapper:hover {
+            transform: translateY(-10px);
+        }
+
+        .book-number {
+            position: absolute;
+            top: 0;
+            left: 0;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #696969;
+            z-index: 10;
+        }
+
+        .book-info {
+            position: absolute;
+            bottom: -60px;
+            left: 0;
+            text-align: left;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .book-title {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .book-author {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .instructions {
+            color: #6a6a6a;
+            text-align: left;
+            margin-bottom: 3rem;
+            padding: 1rem;
+            max-width: 800px;
+            width: 100%;
+            border-left: 2px solid #333;
+        }
+
+        /* Update modal styles */
+        .book-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            background: #111;
+            max-width: 1200px;
+            width: 90%;
+            margin: 2rem;
+            padding: 2rem;
+            border-radius: 12px;
+            position: relative;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: #878686;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .close-button:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.312);
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .book-preview {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 500px;
+            position: relative;
+            background: rgba(178, 34, 34, 0.1);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .book-details {
+            color: #fff;
+            padding: 1rem;
+        }
+
+        .preview-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .preview-author {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 2rem;
+        }
+
+        .book-metadata {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .metadata-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metadata-item .label {
+            color: #807f7f;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-description {
+            line-height: 1.8;
+            color: #fff;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .special-features {
+            background: rgba(178, 34, 34, 0.1);
+            border-left: 3px solid #B22222;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .special-features h3 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .special-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .special-features li {
+            margin: 1rem 0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+        }
+
+        .special-features li:before {
+            content: '•';
+            color: #ffffff;
+            margin-right: 1rem;
+            font-size: 1.5em;
+        }
+
+        @media (max-width: 768px) {
+            .modal-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .book-preview {
+                min-height: 400px;
+            }
+        }
+
+        /* Remove sakura elements */
+        .sakura-branch, .petal {
+            display: none;
+        }
+
+        /* Add subtle gradient background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, #1a1a1a 0%, #000 100%);
+            z-index: 0;
+        }
+
+        /* Add grid lines */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .book {
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            transform-style: preserve-3d;
+            transform: translate(-50%, -50%) rotateY(-30deg);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            top: 50%;
+            left: 50%;
+        }
+
+        .book.active {
+            transition: transform 0.3s ease;
+        }
+
+        .book:hover {
+            animation: none;
+        }
+
+        .book::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            border-radius: 8px;
+            transition: opacity 0.3s ease;
+        }
+
+        .book:hover::before {
+            opacity: 0;
+        }
+
+        .book-side {
+            position: absolute;
+            width: 200px;
+            height: 300px;
+            border-radius: 8px;
+            backface-visibility: visible;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .book-front {
+            background-size: cover;
+            background-position: center;
+            transform: translateZ(25px);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border-radius: 8px 2px 2px 8px;
+        }
+
+        .book-back {
+            background-color: #222;
+            transform: translateZ(-25px) rotateY(180deg);
+            background-image: linear-gradient(45deg, #1a1a1a 25%, #222 25%, #222 50%, #1a1a1a 50%, #1a1a1a 75%, #222 75%, #222 100%);
+            background-size: 20px 20px;
+            border-radius: 2px 8px 8px 2px;
+        }
+
+        .book-spine {
+            width: 50px;
+            height: 300px;
+            background-color: #333;
+            transform: rotateY(90deg) translateZ(-25px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: #fff;
+            text-orientation: mixed;
+            writing-mode: vertical-rl;
+            text-align: center;
+            padding: 10px;
+            border-radius: 2px;
+        }
+
+        .book-pages {
+            position: absolute;
+            width: 48px;
+            height: 296px;
+            top: 2px;
+            right: 0;
+            transform-style: preserve-3d;
+            transform: rotateY(90deg) translateZ(24px);
+            background: #fff;
+            border-radius: 2px;
+        }
+
+        .book-pages::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                #fff 0%,
+                #f9f9f9 5%,
+                #fff 10%,
+                #f9f9f9 15%,
+                #fff 20%,
+                #f9f9f9 25%,
+                #fff 30%,
+                #f9f9f9 35%,
+                #fff 40%,
+                #f9f9f9 45%,
+                #fff 50%,
+                #f9f9f9 55%,
+                #fff 60%,
+                #f9f9f9 65%,
+                #fff 70%,
+                #f9f9f9 75%,
+                #fff 80%,
+                #f9f9f9 85%,
+                #fff 90%,
+                #f9f9f9 95%,
+                #fff 100%
+            );
+            transform: translateZ(0.5px);
+            box-shadow: 1px 0 3px rgba(0, 0, 0, 0.1);
+            border-radius: 1px;
+        }
+
+        .book-pages::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            transform: rotateY(180deg) translateZ(0.5px);
+            box-shadow: -1px 0 3px rgba(0, 0, 0, 0.1);
+            border-radius: 1px;
+        }
+
+        @keyframes rotate360 {
+            from { 
+                transform: translate(-50%, -50%) rotateY(-30deg);
+            }
+            to { 
+                transform: translate(-50%, -50%) rotateY(330deg);
+            }
+        }
+
+        .book.rotating {
+            animation: rotate360 5s linear infinite;
+        }
+
+        .book-cover-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #FFD700;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .book-cover-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #book-4 .book-front {
+            background-color: #B22222 !important;
+        }
+
+        #book-4 .book-spine {
+            background-color: #B22222 !important;
+            color: #FFD700 !important;
+        }
+
+        #book-4 .book-back {
+            background-color: #B22222 !important;
+        }
+
+        /* Speed control button */
+        .speed-control {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            padding: 8px 20px;
+            border-radius: 12px;
+            margin: 1.5rem auto;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            text-align: center;
+            max-width: 120px;
+            width: 100%;
+            z-index: 5;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            user-select: none;
+        }
+
+        .speed-control:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .speed-control.active {
+            background: rgba(255, 165, 0, 0.2);
+            border-color: rgba(255, 165, 0, 0.5);
+            color: #ffa500;
+        }
+
+        /* Spline 3D viewer container */
+        .spline-container {
+            width: 100%;
+            max-width: 1200px;
+            height: 600px;
+            margin: 2rem auto 3rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: transparent;
+            border: none;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .spline-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        spline-viewer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Video Clips Section Styles */
+        .video-clips-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .video-clips-title {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: 700;
+            background: linear-gradient(
+                130deg,
+                #ebebeb 0%,
+                #c4c4c4 30%,
+                #f2f2f2 50%,
+                #d8d8d8 70%,
+                #ebebeb 100%
+            );
+            background-size: 200% 200%;
+            animation: liquidMetal 8s ease infinite;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .video-clips-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .video-clip-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .video-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            text-decoration: none;
+        }
+
+        .video-clip-box:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .video-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .video-clip-box:hover .video-thumbnail img {
+            transform: scale(1.05);
+        }
+
+        .video-info {
+            padding: 1.5rem;
+        }
+
+        .video-info h3 {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .video-info p {
+            color: #888;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .video-clips-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .add-video-container {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .add-video-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-video-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Add Video Modal Styles */
+        .add-video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-button:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .save-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        .save-button:hover {
+            background-color: #45a049;
+        }
+
+        /* Add the musical note button styles */
+        #persistent-audio-frame {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border: none;
+            z-index: 9999;
+        }
+        
+        /* Musical note button for audio control */
+        #musical-note-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid rgba(255, 120, 120, 0.5);
+            border-radius: 50%;
+            z-index: 9999;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(255, 120, 120, 0.3);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        #musical-note-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(255, 120, 120, 0.5);
+        }
+        
+        #musical-note-button:active {
+            transform: scale(0.95);
+        }
+        
+        #musical-note-button .note-icon {
+            font-size: 24px;
+            color: #fff;
+            position: relative;
+        }
+        
+        #musical-note-button .play-icon,
+        #musical-note-button .pause-icon {
+            position: absolute;
+            font-size: 16px;
+            color: #ff3a3a;
+            transition: all 0.3s ease;
+        }
+        
+        #musical-note-button .play-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button .pause-icon {
+            bottom: 5px;
+            right: 5px;
+        }
+        
+        #musical-note-button.playing .play-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        #musical-note-button.playing .pause-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .play-icon {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #musical-note-button:not(.playing) .pause-icon {
+            opacity: 0;
+            transform: scale(0);
+        }
+        
+        /* Track info tooltip */
+        #track-tooltip {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 120, 120, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #fff;
+            font-size: 14px;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 9998;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+        
+        #track-tooltip.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Remove old audio controls if they exist */
+        #global-audio-controls {
+            display: none;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Hidden iframe for persistent audio -->
+    <iframe id="persistent-audio-frame" src="audio-player.html" style="display:none;"></iframe>
+    
+    <!-- Musical note button for audio control -->
+    <div id="musical-note-button">
+        <div class="note-icon">♪</div>
+        <div class="play-icon">▶</div>
+        <div class="pause-icon">❚❚</div>
+    </div>
+    
+    <!-- Track info tooltip -->
+    <div id="track-tooltip">No track playing</div>
+    
+    <!-- Global audio controls that will be visible on all pages -->
+    <div id="global-audio-controls">
+        <button id="global-play-pause"><i class="fas fa-play"></i></button>
+        <div class="track-info">No track playing</div>
+        <input type="range" class="volume-control" min="0" max="100" value="100">
+    </div>
+    
+    <div class="grid-background"></div>
+    
+    <!-- Music Note Button -->
+    <a href="music.html" class="music-note-btn">
+        <div class="music-note">
+            <div class="note-head"></div>
+            <div class="note-stem"></div>
+        </div>
+    </a>
+    
+    <!-- ElevenLabs Convai Widget -->
+    <elevenlabs-convai agent-id="bCgWuSixJD6aBgizygO4"></elevenlabs-convai>
+    <script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
+    
+    <header>
+        <h1>Discover the World of Art</h1>
+        <p>Explore our curated collection of international literary masterpieces through an immersive 3D experience.</p>
+        <div class="nav-buttons">
+            <div class="nav-button">
+                <i class="fas fa-book"></i>
+                <span>Books</span>
+            </div>
+            <a href="board.html" class="nav-button">
+                <i class="fas fa-border-style"></i>
+                <span>Board</span>
+            </a>
+            <a href="pen.html" class="nav-button">
+                <i class="fas fa-pen"></i>
+                <span>Pen</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="car-container">
+        <div class="road"></div>
+        <div class="pixel-car">
+            <div class="speed-lines">
+                <div class="speed-line"></div>
+                <div class="speed-line"></div>
+                <div class="speed-line"></div>
+                <div class="speed-line"></div>
+                <div class="speed-line"></div>
+            </div>
+            <div class="spark" style="bottom: 0; right: 20px;"></div>
+            <div class="spark" style="bottom: 2px; right: 22px;"></div>
+            <div class="spark" style="bottom: -2px; right: 18px;"></div>
+        </div>
+    </div>
+
+    <div class="speed-control">Fast</div>
+
+    <div class="instructions">
+        Hover to rotate books • Click for details • Double-click to reset
+    </div>
+    
+    <!-- Spline 3D Viewer -->
+    <div class="spline-container">
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.82/build/spline-viewer.js"></script>
+        <spline-viewer url="https://prod.spline.design/g4YT9W31RDR7sikF/scene.splinecode"></spline-viewer>
+    </div>
+
+    <div class="books-container">
+        <!-- Book 1 -->
+        <div class="book-wrapper">
+            <div class="book-number">1</div>
+            <div class="book">
+                <div class="book-side book-front" style="background-image: url('https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400'); background-size: cover;"></div>
+                <div class="book-side book-back"></div>
+                <div class="book-side book-spine">The Great Gatsby</div>
+                <div class="book-pages"></div>
+            </div>
+            <div class="book-info">
+                <div class="book-title">The Great Gatsby</div>
+                <div class="book-author">F. Scott Fitzgerald</div>
+            </div>
+        </div>
+
+        <!-- Book 2 -->
+        <div class="book-wrapper">
+            <div class="book-number">2</div>
+            <div class="book">
+                <div class="book-side book-front" style="background-image: url('https://images.unsplash.com/photo-1544967082-d9d25d867d66?auto=format&fit=crop&w=400'); background-size: cover;"></div>
+                <div class="book-side book-back"></div>
+                <div class="book-side book-spine">One Hundred Years of Solitude</div>
+                <div class="book-pages"></div>
+            </div>
+            <div class="book-info">
+                <div class="book-title">One Hundred Years of Solitude</div>
+                <div class="book-author">Gabriel García Márquez</div>
+            </div>
+        </div>
+
+        <!-- Book 3 -->
+        <div class="book-wrapper">
+            <div class="book-number">3</div>
+            <div class="book">
+                <div class="book-side book-front" style="background-image: url('https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=400'); background-size: cover;"></div>
+                <div class="book-side book-back"></div>
+                <div class="book-side book-spine">The Alchemist</div>
+                <div class="book-pages"></div>
+            </div>
+            <div class="book-info">
+                <div class="book-title">The Alchemist</div>
+                <div class="book-author">Paulo Coelho</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Clips Section -->
+    <div class="video-clips-container">
+        <h2 class="video-clips-title">Courses</h2>
+        <div class="video-clips-grid">
+            <div class="video-clip-box">
+                <div class="video-thumbnail">
+                    <img src="https://img.youtube.com/vi/qDHnCFMZ9HA/maxresdefault.jpg" alt="YouTube Video Thumbnail">
+                </div>
+                <div class="video-info">
+                    <h3>Video Title 1</h3>
+                    <p>Click to watch the video</p>
+                </div>
+                <a href="https://youtu.be/qDHnCFMZ9HA?si=Lrz5RYInp_Ziy8Y9" target="_blank" class="video-link"></a>
+            </div>
+            <div class="video-clip-box">
+                <div class="video-thumbnail">
+                    <img src="https://img.youtube.com/vi/kBdfcR-8hEY/maxresdefault.jpg" alt="YouTube Video Thumbnail">
+                </div>
+                <div class="video-info">
+                    <h3>Video Title 2</h3>
+                    <p>Click to watch the video</p>
+                </div>
+                <a href="https://youtube.com/playlist?list=PLRqDfxcafc23LXGoItpkYMKtUdHaQwSDC&si=j7Qu1udRHBnjnKSK" target="_blank" class="video-link"></a>
+            </div>
+            <div class="video-clip-box">
+                <div class="video-thumbnail">
+                    <img src="https://img.youtube.com/vi/Y1K6ds9Ds7Q/maxresdefault.jpg" alt="YouTube Video Thumbnail">
+                </div>
+                <div class="video-info">
+                    <h3>Video Title 3</h3>
+                    <p>Click to watch the video</p>
+                </div>
+                <a href="https://youtu.be/Y1K6ds9Ds7Q?si=44XlbdxMQ5ckzPb7" target="_blank" class="video-link"></a>
+            </div>
+        </div>
+        <div class="add-video-container">
+            <button id="add-video-btn" class="add-video-btn">
+                <i class="fas fa-plus"></i> Add New Video
+            </button>
+        </div>
+    </div>
+
+    <!-- Book Preview Modal -->
+    <div class="book-modal">
+        <div class="modal-content">
+            <button class="close-button">&times;</button>
+            <div class="modal-grid">
+                <div class="book-preview">
+                    <!-- Book will be cloned here -->
+                </div>
+                <div class="book-details">
+                    <h2 class="preview-title"></h2>
+                    <h3 class="preview-author"></h3>
+                    
+                    <div class="book-metadata">
+                        <div class="metadata-grid">
+                            <div class="metadata-item">
+                                <span class="label">Released</span>
+                                <span class="preview-published"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="label">Format</span>
+                                <span class="preview-pages"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="label">Category</span>
+                                <span class="preview-genre"></span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="label">Medium</span>
+                                <span class="preview-language"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="book-description">
+                        <!-- Description will be added here -->
+                    </div>
+
+                    <div class="special-features">
+                        <!-- Special features will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Video Modal -->
+    <div class="add-video-modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Add New Video</h2>
+            <form id="add-video-form">
+                <div class="form-group">
+                    <label for="video-url">YouTube Video URL:</label>
+                    <input type="text" id="video-url" placeholder="https://youtu.be/..." required>
+                </div>
+                <div class="form-group">
+                    <label for="video-title">Video Title:</label>
+                    <input type="text" id="video-title" placeholder="Enter video title">
+                </div>
+                <div class="form-group">
+                    <label for="video-description">Video Description:</label>
+                    <textarea id="video-description" placeholder="Enter video description"></textarea>
+                </div>
+                <button type="button" id="save-video-btn" class="save-button">Save Video</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bookWrappers = document.querySelectorAll('.book-wrapper');
+
+            bookWrappers.forEach(wrapper => {
+                const book = wrapper.querySelector('.book');
+                let rotationInterval;
+
+                // Mouse enter starts rotation
+                wrapper.addEventListener('mouseenter', () => {
+                    book.classList.add('active');
+                    let currentRotation = -30; // Start from default position
+                    
+                    rotationInterval = setInterval(() => {
+                        currentRotation += 2; // Adjust speed by changing this value
+                        if (currentRotation >= 330) {
+                            currentRotation = -30;
+                        }
+                        book.style.transform = `translate(-50%, -50%) rotateY(${currentRotation}deg)`;
+                    }, 50); // Adjust smoothness by changing this value
+                });
+
+                // Mouse leave stops rotation
+                wrapper.addEventListener('mouseleave', () => {
+                    book.classList.remove('active');
+                    clearInterval(rotationInterval);
+                    book.style.transform = 'translate(-50%, -50%) rotateY(-30deg)';
+                });
+
+                // Reset on double click
+                wrapper.addEventListener('dblclick', () => {
+                    book.classList.remove('active');
+                    clearInterval(rotationInterval);
+                    book.style.transform = 'translate(-50%, -50%) rotateY(-30deg)';
+                });
+            });
+
+            // Book preview functionality
+            const bookData = {
+                'Living Paper': {
+                    published: '2024',
+                    pages: 'Interactive Art Book',
+                    genre: 'Art & Design',
+                    language: 'Visual',
+                    description: `Living Paper is an innovative artistic exploration that brings together traditional craftsmanship and modern design. The striking white horse on a deep red background symbolizes the dynamic spirit of creativity, surrounded by artistic tools that represent various design disciplines.
+                    
+                    The design features a majestic white horse in a dynamic pose, representing the unbridled spirit of creativity. The surrounding golden tools and elements symbolize different aspects of design and craftsmanship, creating a harmonious blend of traditional and modern artistic expression.
+                    
+                    Each page is carefully crafted with premium materials and innovative printing techniques, making this not just a book, but a piece of art in itself. The interactive elements throughout the book engage readers in a unique way, creating an immersive experience that bridges the gap between traditional book design and modern interactive media.`,
+                    special_features: [
+                        'Premium Art Print Quality with Metallic Finish',
+                        'Gold Foil Detailing on Cover Elements',
+                        'Interactive Design Elements Throughout',
+                        'Custom Typography and Layout',
+                        'Artistic Tool Illustrations in Gold',
+                        'Deep Red Premium Cover Material',
+                        'Handcrafted Paper Selection',
+                        'Limited Edition Numbering'
+                    ]
+                },
+                'The Great Gatsby': {
+                    published: '1925',
+                    pages: '180',
+                    genre: 'Literary Fiction',
+                    language: 'English',
+                    description: `Set in the Jazz Age on Long Island, the novel depicts narrator Nick Carraway\'s interactions with mysterious millionaire Jay Gatsby and Gatsby\'s obsession to reunite with his former lover, Daisy Buchanan.
+                    
+                    Fitzgerald\'s masterpiece explores themes of decadence, idealism, social upheaval, and excess, creating a portrait of the Roaring Twenties that has been described as a cautionary tale regarding the American Dream.
+                    
+                    The novel\'s prose style, characterized by Fitzgerald\'s lyrical and evocative writing, has made it one of the most celebrated works of American literature.`,
+                    special_features: [
+                        'Original 1925 Cover Design',
+                        'Historical Context Notes',
+                        'Author\'s Biography',
+                        'Literary Analysis Guide'
+                    ]
+                },
+                'One Hundred Years of Solitude': {
+                    published: '1967',
+                    pages: '417',
+                    genre: 'Magical Realism',
+                    language: 'Spanish',
+                    description: `The multi-generational saga of the Buendía family, whose patriarch, José Arcadio Buendía, founded the town of Macondo. The novel is a masterpiece of magical realism, blending the supernatural with the mundane.
+                    
+                    García Márquez weaves a complex narrative that spans seven generations, incorporating elements of Latin American history, mythology, and folklore. The story explores themes of time, memory, and the cyclical nature of history.
+                    
+                    The novel\'s innovative narrative structure and rich symbolism have made it one of the most influential works of 20th-century literature.`,
+                    special_features: [
+                        'Family Tree Illustration',
+                        'Historical Timeline',
+                        'Glossary of Terms',
+                        'Author\'s Notes'
+                    ]
+                },
+                'The Alchemist': {
+                    published: '1988',
+                    pages: '197',
+                    genre: 'Philosophical Fiction',
+                    language: 'Portuguese',
+                    description: `A mystical story of Santiago, an Andalusian shepherd boy who yearns to travel in search of a worldly treasure. His quest leads him to riches far different—and far more satisfying—than he ever imagined.
+                    
+                    Coelho\'s allegorical tale explores themes of destiny, personal legend, and the importance of following one\'s dreams. The novel\'s simple yet profound narrative has inspired readers worldwide to pursue their own paths.
+                    
+                    The story\'s universal themes and spiritual undertones have made it a modern classic, translated into over 80 languages and selling over 150 million copies worldwide.`,
+                    special_features: [
+                        'Author\'s Personal Journey Notes',
+                        'Philosophical Discussion Guide',
+                        'Map of Santiago\'s Journey',
+                        'Inspirational Quotes Collection'
+                    ]
+                },
+                'War and Peace': {
+                    published: '1869',
+                    pages: '1225',
+                    genre: 'Historical Fiction',
+                    language: 'Russian',
+                    description: `Chronicles the French invasion of Russia and the impact of the Napoleonic era on Tsarist society through the stories of five Russian aristocratic families.
+                    
+                    Tolstoy\'s epic masterpiece combines historical events with fictional characters, creating a panoramic view of Russian society during the Napoleonic Wars. The novel explores themes of war, peace, love, and the nature of historical change.
+                    
+                    The work\'s innovative narrative techniques and psychological depth have made it one of the greatest novels ever written, influencing generations of writers and readers.`,
+                    special_features: [
+                        'Historical Maps and Battle Plans',
+                        'Character Family Trees',
+                        'Russian Historical Context',
+                        'Author\'s Writing Process Notes'
+                    ]
+                },
+                'The Name of the Rose': {
+                    published: '1980',
+                    pages: '536',
+                    genre: 'Historical Mystery',
+                    language: 'Italian',
+                    description: `Set in 1327, this intellectual mystery follows Franciscan friar William of Baskerville and his novice Adso as they investigate a series of mysterious deaths at an Italian monastery.
+                    
+                    Eco\'s debut novel masterfully combines historical accuracy with philosophical depth, exploring themes of knowledge, truth, and the power of books. The story is rich with medieval theology, philosophy, and literary references.
+                    
+                    The novel\'s intricate plot and scholarly detail have made it both a bestseller and a critical success, establishing Eco as one of the most important writers of the late 20th century.`,
+                    special_features: [
+                        'Monastery Floor Plan',
+                        'Medieval Latin Glossary',
+                        'Historical Context Guide',
+                        'Literary References Index'
+                    ]
+                },
+                'The God of Small Things': {
+                    published: '1997',
+                    pages: '321',
+                    genre: 'Literary Fiction',
+                    language: 'English',
+                    description: `Set in Kerala, India, this story follows the lives of fraternal twins whose lives are destroyed by the "Love Laws" that lay down "who should be loved, and how, and how much."
+                    
+                    Roy\'s debut novel is celebrated for its innovative narrative structure and lyrical prose, exploring themes of caste, love, and the enduring impact of childhood trauma. The story weaves together past and present, creating a complex tapestry of family history.
+                    
+                    The novel\'s powerful social commentary and poetic language earned it the Booker Prize, making Roy the first Indian woman to win the prestigious award.`,
+                    special_features: [
+                        'Kerala Cultural Guide',
+                        'Family Tree Illustration',
+                        'Glossary of Malayalam Terms',
+                        'Author\'s Writing Process'
+                    ]
+                },
+                'The Master and Margarita': {
+                    published: '1967',
+                    pages: '384',
+                    genre: 'Magical Realism',
+                    language: 'Russian',
+                    description: `A satirical masterpiece that blends supernatural elements with a critique of Soviet society. The story weaves together three plot lines: the devil visiting Moscow, the Master and his lover Margarita, and Jesus and Pontius Pilate.
+                    
+                    Bulgakov\'s novel is celebrated for its complex structure, combining fantasy, satire, and philosophical depth. The work explores themes of good and evil, artistic freedom, and the nature of truth, while providing a scathing critique of Soviet bureaucracy.
+                    
+                    Despite being banned for decades, the novel has become one of the most influential works of Russian literature, inspiring countless adaptations and interpretations.`,
+                    special_features: [
+                        'Moscow Map Guide',
+                        'Historical Context Notes',
+                        'Character Analysis Guide',
+                        'Literary References Index'
+                    ]
+                },
+                'Kafka on the Shore': {
+                    published: '2002',
+                    pages: '505',
+                    genre: 'Magical Realism',
+                    language: 'Japanese',
+                    description: `A metaphysical journey following two distinct but interrelated plots: the story of Kafka Tamura, a teenage runaway, and Nakata, an elderly man who has never recovered from a wartime affliction.
+                    
+                    Murakami\'s novel masterfully blends reality with fantasy, creating a dreamlike narrative that explores themes of identity, memory, and the nature of consciousness. The story incorporates elements of Japanese mythology and Western literature.
+                    
+                    The novel\'s unique blend of magical realism and philosophical depth has made it one of Murakami\'s most celebrated works, earning critical acclaim worldwide.`,
+                    special_features: [
+                        'Japanese Mythology Guide',
+                        'Character Timeline',
+                        'Literary References',
+                        'Author\'s Notes'
+                    ]
+                },
+                'The Unbearable Lightness of Being': {
+                    published: '1984',
+                    pages: '314',
+                    genre: 'Philosophical Fiction',
+                    language: 'Czech',
+                    description: `Set against the Prague Spring period of Czechoslovak history, this novel explores the artistic and intellectual life of Czech society from the Prague Spring to the Soviet Union\'s invasion in 1968.
+                    
+                    Kundera\'s philosophical novel examines themes of love, politics, and the eternal return, weaving together personal and historical narratives. The story follows the lives of four characters whose fates are intertwined with the political upheavals of their time.
+                    
+                    The novel\'s innovative structure and profound philosophical insights have made it a modern classic, influencing contemporary literature and thought.`,
+                    special_features: [
+                        'Historical Timeline',
+                        'Philosophical Concepts Guide',
+                        'Character Analysis',
+                        'Author\'s Commentary'
+                    ]
+                }
+            };
+
+            document.querySelectorAll('.book-wrapper').forEach(wrapper => {
+                wrapper.addEventListener('click', (e) => {
+                    if (e.target.closest('.book')) {
+                        const modal = document.querySelector('.book-modal');
+                        const bookClone = wrapper.querySelector('.book').cloneNode(true);
+                        const title = wrapper.querySelector('.book-title').textContent;
+                        const author = wrapper.querySelector('.book-author').textContent;
+                        const data = bookData[title] || {};
+
+                        // Update modal content
+                        modal.querySelector('.book-preview').innerHTML = '';
+                        modal.querySelector('.book-preview').appendChild(bookClone);
+                        modal.querySelector('.preview-title').textContent = title;
+                        modal.querySelector('.preview-author').textContent = author;
+                        
+                        // Update metadata
+                        modal.querySelector('.preview-published').textContent = data.published || 'N/A';
+                        modal.querySelector('.preview-pages').textContent = data.pages || 'N/A';
+                        modal.querySelector('.preview-genre').textContent = data.genre || 'N/A';
+                        modal.querySelector('.preview-language').textContent = data.language || 'N/A';
+                        
+                        // Update description
+                        const description = modal.querySelector('.book-description');
+                        description.innerHTML = data.description ? data.description.split('\n').map(para => `<p>${para.trim()}</p>`).join('') : 'No description available.';
+                        
+                        // Handle special features
+                        const specialFeatures = modal.querySelector('.special-features');
+                        if (title === 'Living Paper' && data.special_features) {
+                            specialFeatures.innerHTML = `
+                                <h3>Special Features</h3>
+                                <ul>
+                                    ${data.special_features.map(feature => `<li>${feature}</li>`).join('')}
+                                </ul>
+                            `;
+                            specialFeatures.style.display = 'block';
+                        } else {
+                            specialFeatures.style.display = 'none';
+                        }
+
+                        // Show modal with fade-in effect
+                        modal.style.display = 'flex';
+                        modal.style.opacity = '0';
+                        setTimeout(() => {
+                            modal.style.opacity = '1';
+                            modal.style.transition = 'opacity 0.3s ease';
+                        }, 10);
+
+                        // Add active class to the preview book
+                        const previewBook = modal.querySelector('.book');
+                        previewBook.classList.add('active');
+                    }
+                });
+            });
+
+            // Modal close button with fade-out effect
+            document.querySelector('.close-button').addEventListener('click', () => {
+                const modal = document.querySelector('.book-modal');
+                modal.style.opacity = '0';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            });
+
+            // Close modal when clicking outside with fade-out effect
+            document.querySelector('.book-modal').addEventListener('click', (e) => {
+                if (e.target.classList.contains('book-modal')) {
+                    e.target.style.opacity = '0';
+                    setTimeout(() => {
+                        e.target.style.display = 'none';
+                    }, 300);
+                }
+            });
+
+            // Fast button functionality
+            document.querySelector('.speed-control').addEventListener('click', function() {
+                const car = document.querySelector('.pixel-car');
+                const sparks = document.querySelectorAll('.spark');
+                
+                // Toggle fast mode
+                if (car.classList.contains('fast')) {
+                    // Return to normal speed
+                    car.classList.remove('fast');
+                    this.classList.remove('active');
+                    car.style.animationDuration = '12s';
+                    
+                    // Normal sparks
+                    sparks.forEach(spark => {
+                        spark.classList.remove('enhanced');
+                    });
+                } else {
+                    // Activate fast mode
+                    car.classList.add('fast');
+                    this.classList.add('active');
+                    car.style.animationDuration = '4s';
+                    
+                    // Enhanced sparks
+                    sparks.forEach(spark => {
+                        spark.classList.add('enhanced');
+                    });
+                }
+            });
+
+            // 360-degree rotation controls
+            const rotateBtn = document.querySelector('.rotate-btn');
+            const stopBtn = document.querySelector('.stop-btn');
+            const slider = document.querySelector('.rotation-slider');
+
+            function startRotation() {
+                const previewBook = document.querySelector('.book-preview .book');
+                previewBook.classList.add('rotating');
+            }
+
+            function stopRotation() {
+                const previewBook = document.querySelector('.book-preview .book');
+                previewBook.classList.remove('rotating');
+            }
+
+            rotateBtn.addEventListener('click', startRotation);
+            stopBtn.addEventListener('click', stopRotation);
+
+            slider.addEventListener('input', (e) => {
+                const previewBook = document.querySelector('.book-preview .book');
+                stopRotation();
+                previewBook.style.transform = `translate(-50%, -50%) rotateY(${e.target.value}deg)`;
+            });
+
+            // Close modal when clicking outside
+            document.querySelector('.book-modal').addEventListener('click', (e) => {
+                if (e.target.classList.contains('book-modal')) {
+                    e.target.style.display = 'none';
+                    stopRotation();
+                }
+            });
+
+            // Add this script at the end of your existing scripts
+            function createPetal() {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                
+                // Random size between 10px and 20px
+                const size = Math.random() * 10 + 10;
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size}px`;
+                
+                // Random start position
+                const startX = Math.random() * window.innerWidth;
+                const endX = startX + (Math.random() * 200 - 100); // Random drift
+                
+                petal.style.setProperty('--start-x', `${startX}px`);
+                petal.style.setProperty('--end-x', `${endX}px`);
+                
+                // Random animation duration between 5s and 10s
+                const duration = Math.random() * 5 + 5;
+                petal.style.animationDuration = `${duration}s`;
+                
+                // Random delay
+                petal.style.animationDelay = `${Math.random() * 5}s`;
+                
+                document.body.appendChild(petal);
+                
+                // Remove petal after animation
+                setTimeout(() => {
+                    petal.remove();
+                }, duration * 1000);
+            }
+
+            // Create new petals periodically
+            setInterval(createPetal, 300);
+
+            // Initial petals
+            for(let i = 0; i < 20; i++) {
+                createPetal();
+            }
+
+            // Add Video Functionality
+            const addVideoBtn = document.getElementById('add-video-btn');
+            const addVideoModal = document.querySelector('.add-video-modal');
+            const saveVideoBtn = document.getElementById('save-video-btn');
+            const videoClipsGrid = document.querySelector('.video-clips-grid');
+            const closeButton = document.querySelector('.close-button');
+
+            // Open modal when clicking the Add Video button
+            addVideoBtn.addEventListener('click', () => {
+                addVideoModal.style.display = 'flex';
+                setTimeout(() => {
+                    addVideoModal.style.opacity = '1';
+                }, 10);
+            });
+
+            // Close modal when clicking the close button
+            closeButton.addEventListener('click', () => {
+                addVideoModal.style.opacity = '0';
+                setTimeout(() => {
+                    addVideoModal.style.display = 'none';
+                }, 300);
+            });
+
+            // Close modal when clicking outside
+            addVideoModal.addEventListener('click', (e) => {
+                if (e.target === addVideoModal) {
+                    addVideoModal.style.opacity = '0';
+                    setTimeout(() => {
+                        addVideoModal.style.display = 'none';
+                    }, 300);
+                }
+            });
+
+            // Save video when clicking the Save button
+            saveVideoBtn.addEventListener('click', () => {
+                const videoUrl = document.getElementById('video-url').value.trim();
+                const videoTitle = document.getElementById('video-title').value.trim();
+                const videoDescription = document.getElementById('video-description').value.trim();
+
+                if (!videoUrl) {
+                    alert('Please enter a YouTube video URL');
+                    return;
+                }
+
+                // Extract video ID from URL
+                let videoId = '';
+                if (videoUrl.includes('youtu.be/')) {
+                    videoId = videoUrl.split('youtu.be/')[1].split('?')[0];
+                } else if (videoUrl.includes('youtube.com/watch?v=')) {
+                    videoId = videoUrl.split('watch?v=')[1].split('&')[0];
+                } else {
+                    alert('Please enter a valid YouTube video URL');
+                    return;
+                }
+
+                // Create new video box
+                const newVideoBox = document.createElement('div');
+                newVideoBox.className = 'video-clip-box';
+                newVideoBox.innerHTML = `
+                    <div class="video-thumbnail">
+                        <img src="https://img.youtube.com/vi/${videoId}/maxresdefault.jpg" alt="YouTube Video Thumbnail">
+                    </div>
+                    <div class="video-info">
+                        <h3>${videoTitle || 'Video Title'}</h3>
+                        <p>${videoDescription || 'Click to watch the video'}</p>
+                    </div>
+                    <a href="${videoUrl}" target="_blank" class="video-link"></a>
+                `;
+
+                // Add the new video box to the grid
+                videoClipsGrid.appendChild(newVideoBox);
+
+                // Reset form and close modal
+                document.getElementById('video-url').value = '';
+                document.getElementById('video-title').value = '';
+                document.getElementById('video-description').value = '';
+                
+                addVideoModal.style.opacity = '0';
+                setTimeout(() => {
+                    addVideoModal.style.display = 'none';
+                }, 300);
+            });
+
+            // Function to send message to iframe
+            function sendMessageToIframe(message) {
+                try {
+                    const persistentAudioFrame = document.getElementById('persistent-audio-frame');
+                    // Wait for iframe to load
+                    if (persistentAudioFrame.contentWindow) {
+                        persistentAudioFrame.contentWindow.postMessage(message, '*');
+                        console.log("Message sent to iframe:", message);
+                    } else {
+                        console.error("Iframe content window not available");
+                    }
+                } catch (e) {
+                    console.error("Error sending message to iframe:", e);
+                }
+            }
+            
+            // Global play/pause button
+            document.getElementById('global-play-pause').addEventListener('click', function() {
+                sendMessageToIframe({
+                    type: 'play'
+                });
+                this.innerHTML = '<i class="fas fa-pause"></i>';
+            });
+            
+            // Global volume control
+            document.querySelector('.volume-control').addEventListener('input', function() {
+                sendMessageToIframe({
+                    type: 'setVolume',
+                    volume: this.value
+                });
+            });
+            
+            // Update track info from localStorage
+            const trackInfo = document.querySelector('.track-info');
+            const savedTrackName = localStorage.getItem('currentTrackName');
+            if (savedTrackName) {
+                trackInfo.textContent = savedTrackName;
+            }
+            
+            // Update play/pause button state
+            const playPauseButton = document.getElementById('global-play-pause');
+            const wasPlaying = localStorage.getItem('isPlaying') === 'true';
+            if (wasPlaying) {
+                playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            
+            // Update volume control
+            const volumeControl = document.querySelector('.volume-control');
+            const savedVolume = localStorage.getItem('volume');
+            if (savedVolume) {
+                volumeControl.value = savedVolume;
+            }
+            
+            // Make sure iframe is loaded before sending messages
+            document.getElementById('persistent-audio-frame').onload = function() {
+                console.log("Iframe loaded on index page");
+                // Send initial state to iframe
+                const savedTrack = localStorage.getItem('currentTrack');
+                if (savedTrack) {
+                    sendMessageToIframe({
+                        type: 'loadTrack',
+                        src: savedTrack,
+                        play: wasPlaying
+                    });
+                }
+            };
+
+            // Add audio player functionality
+            function setupAudioPlayer() {
+                const musicalNoteButton = document.getElementById('musical-note-button');
+                const trackTooltip = document.getElementById('track-tooltip');
+                const persistentAudioFrame = document.getElementById('persistent-audio-frame');
+                
+                // Function to send message to iframe
+                function sendMessageToIframe(message) {
+                    try {
+                        // Wait for iframe to load
+                        if (persistentAudioFrame.contentWindow) {
+                            persistentAudioFrame.contentWindow.postMessage(message, '*');
+                            console.log("Message sent to iframe:", message);
+                        } else {
+                            console.error("Iframe content window not available");
+                        }
+                    } catch (e) {
+                        console.error("Error sending message to iframe:", e);
+                    }
+                }
+                
+                // Check if there's a saved track in localStorage
+                const savedTrack = localStorage.getItem('currentTrack');
+                const savedTime = localStorage.getItem('currentTime');
+                const wasPlaying = localStorage.getItem('isPlaying') === 'true';
+                
+                // Update musical note button state based on saved state
+                if (wasPlaying) {
+                    musicalNoteButton.classList.add('playing');
+                }
+                
+                // Update track tooltip
+                const trackName = localStorage.getItem('currentTrackName') || 'No track playing';
+                trackTooltip.textContent = trackName;
+                
+                // Musical note button click handler
+                musicalNoteButton.addEventListener('click', () => {
+                    if (wasPlaying) {
+                        sendMessageToIframe({
+                            type: 'pause'
+                        });
+                        musicalNoteButton.classList.remove('playing');
+                    } else {
+                        sendMessageToIframe({
+                            type: 'play'
+                        });
+                        musicalNoteButton.classList.add('playing');
+                    }
+                });
+                
+                // Double click on musical note to play next track
+                musicalNoteButton.addEventListener('dblclick', () => {
+                    sendMessageToIframe({
+                        type: 'nextTrack'
+                    });
+                });
+                
+                // Show track tooltip on hover
+                musicalNoteButton.addEventListener('mouseenter', () => {
+                    const trackName = localStorage.getItem('currentTrackName') || 'No track playing';
+                    trackTooltip.textContent = trackName;
+                    trackTooltip.classList.add('visible');
+                });
+                
+                // Hide track tooltip on mouse leave
+                musicalNoteButton.addEventListener('mouseleave', () => {
+                    trackTooltip.classList.remove('visible');
+                });
+                
+                // Listen for messages from iframe
+                window.addEventListener('message', function(event) {
+                    const data = event.data;
+                    
+                    if (data.type === 'playStateChanged') {
+                        if (data.isPlaying) {
+                            musicalNoteButton.classList.add('playing');
+                        } else {
+                            musicalNoteButton.classList.remove('playing');
+                        }
+                    } else if (data.type === 'trackChanged') {
+                        // Update track tooltip
+                        trackTooltip.textContent = data.trackName;
+                    }
+                });
+                
+                // Make sure iframe is loaded before sending messages
+                persistentAudioFrame.onload = function() {
+                    console.log("Iframe loaded on index page");
+                };
+            }
+            
+            // Initialize
+            setupAudioPlayer();
+        });
+    </script>
+</body>
+</html> 
